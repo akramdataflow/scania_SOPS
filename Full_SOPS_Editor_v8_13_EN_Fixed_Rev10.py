@@ -472,9 +472,9 @@ class App(ttk.Frame):
             width=24,
             values=[
                 "— select action —",
-                "adblue euro 5 fix",
-                "adblue euro 6 fix",
-                "immo fix",
+                "adblue euro 5 delet",
+                "adblue euro 6 delet",
+                "immo off",
                 "sms disable",
                 "retarder disable",
                 "clutch off",
@@ -575,6 +575,7 @@ class App(ttk.Frame):
 
         self.var_b_code = tk.StringVar(); self.var_b_desc = tk.StringVar(); self.var_b_long = tk.StringVar()
         self.var_a_code = tk.StringVar(); self.var_a_desc = tk.StringVar(); self.var_a_long = tk.StringVar()
+        
 
         logf = ttk.Frame(self.master, padding=(8, 0, 8, 6))
         logf.pack(fill="both", expand=False)
@@ -1084,15 +1085,15 @@ class App(ttk.Frame):
 
             try:
                 txt = outp.read_text(encoding="utf-8", errors="ignore")
-                def bump(mv): return f'MajorVersion="{int(mv.group(1))+1}"'
+                def bump(mv): return f'MajorVersion="{int(mv.group(1))+10}"'
                 txt2, nsub = re.subn(r'MajorVersion="(\d+)"', bump, txt, count=1)
                 if nsub == 0:
-                    def bump2(mv): return f'MajorVersion="{int(mv.group(1))+1}"'
+                    def bump2(mv): return f'MajorVersion="{int(mv.group(1))+10}"'
                     txt2, nsub2 = re.subn(r'\bMajorVersion\s*=\s*"(\d+)"', bump2, txt, count=1)
                     nsub += nsub2
                 if nsub > 0:
                     outp.write_text(txt2, encoding="utf-8")
-                    self._log(f"[SAVE] Bumped MajorVersion by +1 in output.")
+                    self._log(f"[SAVE] Bumped MajorVersion by +10 in output.")
                 else:
                     self._log("[SAVE] MajorVersion not found; left unchanged.")
             except Exception as e_bump:
