@@ -661,7 +661,7 @@ class App(ttk.Frame):
         self.var_a_code = tk.StringVar(); self.var_a_desc = tk.StringVar(); self.var_a_long = tk.StringVar()
 
         logf = ttk.Frame(self.master, padding=(8, 0, 8, 6))
-        logf.pack(fill="both", expand=False)
+        # logf.pack(fill="both", expand=False)
         self.txt = tk.Text(logf, height=6, bg="#101315", fg="#a7ffb5", insertbackground="white", font=("Consolas", 10), borderwidth=0, highlightthickness=0)
         self.txt.pack(fill="both", expand=True)
 
@@ -777,20 +777,38 @@ class App(ttk.Frame):
 
     
 
-    def _action_immo_fix(self):         self._log("[ACTION] immo fix (placeholder)")
-    def _action_sms_disable(self):      self._log("[ACTION] sms disable (placeholder)")
+    def _action_immo_fix(self):
+        mapping = {
+            2344: 'Z'}
+        if not self.rows_all:
+            self._log("[EDIT] No data loaded. Please Analyze first."); return
+        self._bulk_preview_and_apply(mapping, "immo_fix")
+
+        
+    def _action_sms_disable(self):
+        mapping = {
+            3135: 'Z'}
+        if not self.rows_all:
+            self._log("[EDIT] No data loaded. Please Analyze first."); return
+        self._bulk_preview_and_apply(mapping, "sms_disable")
     def _action_retarder_disable(self):
         mapping = self._default_params.get("retarder disable", {})
         if mapping: self._bulk_preview_and_apply(mapping, "retarder disable")
         else: self._log("[ACTION] retarder disable (no defaults set)")
+
+
     def _action_clutch_off(self):
         mapping = self._default_params.get("clutch off", {})
         if mapping: self._bulk_preview_and_apply(mapping, "clutch off")
         else: self._log("[ACTION] clutch off (no defaults set)")
+
+
     def _action_pto_type(self):
         mapping = self._default_params.get("pto type", {})
         if mapping: self._bulk_preview_and_apply(mapping, "pto type")
         else: self._log("[ACTION] pto type (no defaults set)")
+
+        
     def _action_cyl_off_match_off(self):
         mapping = self._default_params.get("cylinder off match off", {})
         if mapping: self._bulk_preview_and_apply(mapping, "cylinder off match off")
