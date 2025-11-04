@@ -6,7 +6,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, simpledialog
 import xml.etree.ElementTree as ET
 
-APP_TITLE = "Scania Spec Index (ttkinter, CSV only — meanings + dynamic 3113..3148, responsive, search)"
+APP_TITLE = "Scania Spec Index (ttkinter — meanings, dynamic 3113..3148, responsive, search)"
 
 # Base paths
 BASE_DIR = os.path.join(os.path.expanduser("~"), r"Documents\GitHub\scania_SOPS\classifier")
@@ -21,22 +21,34 @@ MAPPING_CANDIDATES = [
     os.path.join(os.path.dirname(__file__), "sops_fpc_mapping.csv"),
 ]
 
-# Fixed fields (Descriptions only). (Power_kW removed as requested)
+# Remove any columns whose name contains this (case-insensitive)
+FORBIDDEN_SUBSTR = "environment"
+
+# Fixed fields (Descriptions only). Order defines column order in table/CSV.
+# NOTE: Power_kW (3266) was removed earlier by request.
 FIXED_FIELDS = [
-    ("448",  "Axles"),
-    ("3127", "EngineECU"),
-    ("408",  "EngineSoftware"),
-    ("142",  "EngineSize"),
-    ("3129", "GearboxECU"),  # special rule: if code == 'Z' -> 'GMan'
+    ("448",   "Axles"),
+    ("3127",  "EngineECU"),
+    ("408",   "Engine Version"),             # renamed from EngineSoftware
+    ("142",   "EngineSize"),
+
+    # Emissions & related additions
+    ("2344",  "Immobiliser"),
+    ("2409",  "EGR"),
+    ("4306",  "NOx sensor"),
+    ("4280",  "Exhaust Emission Control"),
+    ("2471",  "Emission level"),
+
+    # COO + Gearbox cluster
+    ("3113",  "COO"),                        # brought as fixed to control placement
+    ("3129",  "GearboxECU"),                 # special rule: if code == 'Z' -> 'GMan'
+    ("17",    "Gearbox Type"),               # placed right after GearboxECU
 ]
 
-# Dynamic FPC range
+# Dynamic FPC range (short-named columns, dedup by label, excluding forbidden names)
 DYN_START = 3113
 DYN_END   = 3148
 DYN_RANGE = [str(i) for i in range(DYN_START, DYN_END + 1)]
-
-# Columns whose names contain this word will be removed (case-insensitive)
-FORBIDDEN_SUBSTR = "environment"
 
 # Mapping stores
 LONG_BY_ID   = {}
@@ -165,29 +177,30 @@ def parse_fpc_map(xml_path: str) -> dict:
 
 # ---------- CSV header ----------
 def _remove_forbidden(name: str) -> bool:
-    """Return True if this column name must be removed (contains 'environment', case-insensitive)."""
     return FORBIDDEN_SUBSTR and (FORBIDDEN_SUBSTR.lower() in (name or "").lower())
 
 def compute_csv_columns():
     """
-    Header = Year + fixed + dynamic (3113..3148 by Short, dedup by label, minus forbidden) + XML_Path.
-    XML_Path kept for CSV only (hidden in UI).
+    Header = Year + fixed (incl. new requested) + dynamic (3113..3148 by Short, dedup, no 'environment') + XML_Path.
     """
     cols = ["Year"]
+
+    # Add fixed fields in desired order, skipping forbidden names
     for _, col_name in FIXED_FIELDS:
         if not _remove_forbidden(col_name):
             cols.append(col_name)
 
+    # Dynamic by Short, dedup by label, skip 'environment'
     dynamic_labels = []
     seen = set(cols)
     for fid in DYN_RANGE:
-        label = short_for(fid)
-        if _remove_forbidden(label):
-            continue                     # drop environment columns entirely
-        if label in seen:
-            continue                     # dedup: skip repeated Short
-        seen.add(label)
-        dynamic_labels.append((fid, label))
+        s = short_for(fid)
+        if _remove_forbidden(s):
+            continue
+        if s in seen:
+            continue
+        seen.add(s)
+        dynamic_labels.append((fid, s))
 
     cols.extend([label for _, label in dynamic_labels])
     cols.append("XML_Path")
@@ -229,9 +242,9 @@ def build_record(xml_path: str, year: str, stored_xml_path: str, dynamic_labels)
     rec = {col: "" for col in header}
     rec["Year"] = (year or "").strip()
 
-    # Fixed fields (meanings)
+    # Fill fixed fields (Descriptions only)
     for fpc_id, col_name in FIXED_FIELDS:
-        if _remove_forbidden(col_name):   # safety, though fixed names likely not forbidden
+        if _remove_forbidden(col_name):
             continue
         code = fpc_map.get(fpc_id, "")
         if fpc_id == "3129" and code == "Z":
@@ -350,7 +363,7 @@ class App(tk.Tk):
         # Treeview
         self.visible_columns = []      # computed after loading rows (no XML_Path)
         self.tree = ttk.Treeview(self, columns=(), show="headings")
-        self.row_by_iid = {}           # iid -> full record (to access hidden XML_Path)
+        self.row_by_iid = {}           # iid -> full record (for hidden XML_Path)
 
         vsb = ttk.Scrollbar(self, orient="vertical", command=self.tree.yview)
         hsb = ttk.Scrollbar(self, orient="horizontal", command=self.tree.xview)
@@ -371,14 +384,21 @@ class App(tk.Tk):
 
     # ----- Visible columns -----
     def compute_visible_columns(self, rows):
-        """Hide XML_Path; drop columns empty across all rows; keep Year + fixed always."""
-        must_keep = {"Year"} | {name for _, name in FIXED_FIELDS if not _remove_forbidden(name)}
+        """
+        Hide XML_Path; drop columns empty across all rows; keep Year + fixed always;
+        also exclude any column containing 'environment'.
+        """
+        fixed_names = [name for _, name in FIXED_FIELDS if not _remove_forbidden(name)]
+        must_keep = {"Year"} | set(fixed_names)
+
         cols = [c for c in self.header if c != "XML_Path" and not _remove_forbidden(c)]
+
         nonempty = {c: False for c in cols}
         for r in rows:
             for c in cols:
                 if (r.get(c) or "").strip():
                     nonempty[c] = True
+
         visible = []
         for c in cols:
             if c in must_keep or nonempty[c]:
@@ -403,8 +423,15 @@ class App(tk.Tk):
         padding = 20
         avail = max(200, tree_w - vertical_bar_width - padding)
         weights = {c: 1 for c in self.visible_columns}
+        # give more space to long ones
+        for c in ("Engine Version", "Exhaust Emission Control"):
+            if c in weights:
+                weights[c] = 2
         total_weight = sum(weights.values()) or 1
         min_widths = {c: 80 for c in self.visible_columns}
+        for c in ("Engine Version","EngineECU","EngineSize","GearboxECU","Gearbox Type","Exhaust Emission Control"):
+            if c in min_widths:
+                min_widths[c] = 120
         remaining = avail - sum(min_widths.get(c, 0) for c in self.visible_columns)
         if remaining < 0:
             remaining = 0
@@ -461,7 +488,7 @@ class App(tk.Tk):
         for r in rows:
             values = [r.get(col, "") for col in self.visible_columns]
             iid = self.tree.insert("", "end", values=values)
-            self.row_by_iid[iid] = r  # keep full record (for XML_Path)
+            self.row_by_iid[iid] = r
         self.auto_fit_columns()
 
     def apply_filter(self):
