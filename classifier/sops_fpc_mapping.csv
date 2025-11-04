@@ -16,6 +16,13 @@
 2,Axle distance,Axle distance,A,31 dm
 2,Axle distance,Axle distance,AA,47 dm
 2,Axle distance,Axle distance,AB,55 dm
+3,Plate language,Plate language,M,Italian
+3,Plate language,Plate language,G,French
+3,Plate language,Plate language,S,Chinese
+3,Plate language,Plate language,L,Polish 
+3,Plate language,Plate language,C,German 
+3,Plate language,Plate language,D,Arabic 
+3,Plate language,Plate language,B,English 
 5,"Brake chamber type, 2nd front","Brake chamber type, 2nd front",A,membrane
 5,"Brake chamber type, 2nd front","Brake chamber type, 2nd front",B,membrane+spring
 5,"Brake chamber type, 2nd front","Brake chamber type, 2nd front",ZZ,not valid
@@ -298,6 +305,7 @@
 17,Gearbox,Gearbox,ZZ,not valid
 20,Difrerential lock,Difrerential lock,A,with
 20,Difrerential lock,Difrerential lock,B,without
+21,Axle gear,Axle gear,AA,R642
 21,Axle gear,Axle gear,AB,RD760
 21,Axle gear,Axle gear,AC,RV760
 21,Axle gear,Axle gear,AD,RP620
@@ -342,7 +350,6 @@
 21,Axle gear,Axle gear,V,R770
 21,Axle gear,Axle gear,X,R641
 21,Axle gear,Axle gear,Z,RV654
-21,Axle gear,Axle gear,AA,R642
 22,Rear axle gear ratio,Rear axle gear ratio,A,"4,78"
 22,Rear axle gear ratio,Rear axle gear ratio,AA,"3,50"
 22,Rear axle gear ratio,Rear axle gear ratio,AB,"4,25"
@@ -433,6 +440,8 @@
 27,Trailer brake coupling,Trailer brake coupling,Z,without
 28,Brake chamber type 1st front,Brake chamber type 1st front,A,membrane
 28,Brake chamber type 1st front,Brake chamber type 1st front,B,membrane+spring
+31,"Interlock valve, parking brake","Interlock valve, parking brake",B,with
+31,"Interlock valve, parking brake","Interlock valve, parking brake",Z,without
 32,Engine,Engine,S,"truck, SCANIA"
 32,Engine,Engine,T,"bus, SCANIA"
 33,"Suspension rear, leaf springs","Suspension rear, leaf springs",A,8x20
@@ -504,6 +513,8 @@
 34,"Suspension front, leaf springs","Suspension front, leaf springs",X,3x26
 34,"Suspension front, leaf springs","Suspension front, leaf springs",Y,4x22
 34,"Suspension front, leaf springs","Suspension front, leaf springs",ZZ,not valid
+35,Hose for tyre inflation,Hose for tyre inflation,B,20 meter
+35,Hose for tyre inflation,Hose for tyre inflation,Z,without
 37,Gearbox type,Gearbox type,A,with range
 37,Gearbox type,Gearbox type,B,with split
 37,Gearbox type,Gearbox type,C,with range + split
@@ -518,6 +529,8 @@
 38,Torque converter,Torque converter,A,with
 38,Torque converter,Torque converter,Z,without
 38,Torque converter,Torque converter,ZZ,not valid
+39,Brake adaptation,Brake adaptation,A,Tractor
+39,Brake adaptation,Brake adaptation,B,Rigid
 42,Cab type,Cab Type,G,CP
 42,Cab type,Cab Type,H,CR
 42,Cab type,Cab Type,J,CG
@@ -525,6 +538,10 @@
 42,Cab type,Cab Type,L,CL
 42,Cab type,Cab Type,S,CS
 42,Cab type,Cab Type,ZZ,not valid
+49,"Wheel, type","Wheel, type",A,Disc
+49,"Wheel, type","Wheel, type",B,Drum
+53,"Splash guard, front","Splash guard, front",A,with
+53,"Splash guard, front","Splash guard, front",Z,without
 54,"Axle load rear, technical","Axle load rear, technical",A,8000 kg
 54,"Axle load rear, technical","Axle load rear, technical",B,10000 kg
 54,"Axle load rear, technical","Axle load rear, technical",C,11000 kg
@@ -547,12 +564,21 @@
 54,"Axle load rear, technical","Axle load rear, technical",V,12700 kg
 54,"Axle load rear, technical","Axle load rear, technical",W,12900 kg
 54,"Axle load rear, technical","Axle load rear, technical",ZZ,not valid
+58,Chassis width,Chassis width,D,2600 mm
+58,Chassis width,Chassis width,E,2550 mm
+58,Chassis width,Chassis width,A,2500 mm
+61,Roof rack,Roof rack,A,with
+61,Roof rack,Roof rack,B,without
+66,"Window, rear wall","Window, rear wall",A,with
+66,"Window, rear wall","Window, rear wall",B,without
 67,White smoke limiter,White smoke limiter,A,with
 67,White smoke limiter,White smoke limiter,B,without
 67,White smoke limiter,White smoke limiter,Z,without
 67,White smoke limiter,White smoke limiter,ZZ,not valid
 68,"Rear axle, execution","Rear axle, execution",A,Single drive
 68,"Rear axle, execution","Rear axle, execution",B,Tandem drive
+69,"Rear view mirrors, heated","Rear view mirrors, heated",C,with
+69,"Rear view mirrors, heated","Rear view mirrors, heated",Z,without
 73,"Axle weight front,technical","Axle weight front,technical",A,6500 kg
 73,"Axle weight front,technical","Axle weight front,technical",AA,2 x 7500 kg
 73,"Axle weight front,technical","Axle weight front,technical",AB,7800 kg
@@ -587,13 +613,13 @@
 73,"Axle weight front,technical","Axle weight front,technical",Y,2 x 9000 kg
 74,"Fuel volume, right side","Fuel volume, right side",A,200 dm3
 74,"Fuel volume, right side","Fuel volume, right side",AA,150 dm3
+74,"Fuel volume, right side","Fuel volume, right side",AAJ,500W + 350W
 74,"Fuel volume, right side","Fuel volume, right side",AB,350 dm3
 74,"Fuel volume, right side","Fuel volume, right side",AC,750 dm3
 74,"Fuel volume, right side","Fuel volume, right side",AD,470 dm3
 74,"Fuel volume, right side","Fuel volume, right side",AF,300W + 500W
 74,"Fuel volume, right side","Fuel volume, right side",AG,700 dm3
 74,"Fuel volume, right side","Fuel volume, right side",AH,500W + 200W
-74,"Fuel volume, right side","Fuel volume, right side",AAJ,500W + 350W
 74,"Fuel volume, right side","Fuel volume, right side",AK,400 dm3
 74,"Fuel volume, right side","Fuel volume, right side",AL,650 dm3
 74,"Fuel volume, right side","Fuel volume, right side",AM,200G + 200G
@@ -811,6 +837,9 @@
 82,Prop.shaft type,Propeller shaft type,TA,P644
 82,Prop.shaft type,Propeller shaft type,U,P603
 82,Prop.shaft type,Propeller shaft type,V,P700
+83,Rescue equip. except fire ext,Rescue equip. except fire ext,D,normal
+83,Rescue equip. except fire ext,Rescue equip. except fire ext,E,DIN
+83,Rescue equip. except fire ext,Rescue equip. except fire ext,Z,without
 84,Load limit,Load limit,A,at 10000 kg
 84,Load limit,Load limit,B,at 11000 kg
 84,Load limit,Load limit,C,at 12000 kg
@@ -856,6 +885,8 @@
 89,"Clutch, frictiontype","Clutch, frictiontype",DZ,K432 77
 89,"Clutch, frictiontype","Clutch, frictiontype",Z,without
 89,"Clutch, frictiontype","Clutch, frictiontype",ZZ,not valid
+92,"Anti-roll bar, front","Anti-roll bar, front",D,Extra stiffness
+92,"Anti-roll bar, front","Anti-roll bar, front",Z,Without
 95,Battery,Battery,A,without
 95,Battery,Battery,AA,150 Ah
 95,Battery,Battery,AB,140 Ah dry char
@@ -896,6 +927,8 @@
 97,Air conditioning,ACC,B,without
 97,Air conditioning,ACC,C,prepared
 97,Air conditioning,ACC,ZZ,not valid
+98,"Foglamp, rear","Foglamp, rear",A,with
+98,"Foglamp, rear","Foglamp, rear",Z,without
 103,Fuel ?lling side,Fuel ?lling side,A,left side
 103,Fuel ?lling side,Fuel ?lling side,B,right side
 103,Fuel ?lling side,Fuel ?lling side,C,left + right
@@ -905,6 +938,7 @@
 103,Fuel ?lling side,Fuel ?lling side,ZZ,not valid
 107,"Resting equipment, passenger","Resting equipment, passenger",A,with
 107,"Resting equipment, passenger","Resting equipment, passenger",Z,without
+109,Spare wheel carrier,Spare wheel carrier,Z,Without
 111,Retarder,Retarder,F,Scania
 111,Retarder,Retarder,H,ZF
 111,Retarder,Retarder,K,Allison
@@ -953,6 +987,8 @@
 142,Engine stroke volume,Engine stroke volume,H,13 liters
 142,Engine stroke volume,Engine stroke volume,J,6 litres
 142,Engine stroke volume,Engine stroke volume,K,7 litres
+143,Curtain door & windscreen,Curtain door & windscreen,A,with
+143,Curtain door & windscreen,Curtain door & windscreen,Z,without
 144,Radio,Radio,A,24V
 144,Radio,Radio,B,prepared
 144,Radio,Radio,C,with tape rec.
@@ -962,6 +998,11 @@
 144,Radio,Radio,G,with media streaming/DAB+
 144,Radio,Radio,H,driver radio+announcem system
 144,Radio,Radio,Z,without
+148,Wheel nut cover,Wheel nut cover,B,"Steel, stainless"
+148,Wheel nut cover,Wheel nut cover,A,"Steel, painted"
+148,Wheel nut cover,Wheel nut cover,Z,Without
+164,Mudguard rear,Mudguard rear,A,with
+164,Mudguard rear,Mudguard rear,Z,Without
 196,School sign,School sign,A,with
 196,School sign,School sign,B,prepared for
 196,School sign,School sign,C,with hazard
@@ -996,6 +1037,8 @@
 214,"Fan, gear ratio","Fan, gear ratio",X,2.0:1
 214,"Fan, gear ratio","Fan, gear ratio",Z,without
 214,"Fan, gear ratio","Fan, gear ratio",ZZ,not valid
+227,Interior door sunvisor,Interior door sunvisor,B,with
+227,Interior door sunvisor,Interior door sunvisor,Z,without
 247,Temperature regulator,Temperature regulator,A,79 degrees
 247,Temperature regulator,Temperature regulator,C,83 degrees
 247,Temperature regulator,Temperature regulator,D,80 degrees
@@ -1012,6 +1055,8 @@
 258,Power turbine,Power turbine,ZZ,not valid
 259,Traction control,Traction control,A,with
 259,Traction control,Traction control,Z,without
+259,Traction control,Traction control,A,With
+259,Traction control,Traction control,Z,Without
 272,Chassis height,Chassis height,A,low
 272,Chassis height,Chassis height,B,normal
 272,Chassis height,Chassis height,C,high
@@ -1027,12 +1072,22 @@
 274,Engine aplication,Engine aplication,D,vehicle
 289,Anti vibr.set in brake chamber,Anti vibr.set in brake chamber,A,with
 289,Anti vibr.set in brake chamber,Anti vibr.set in brake chamber,Z,without
+290,Signal horn,Signal horn,A,compressed air
+290,Signal horn,Signal horn,B,electric
+290,Signal horn,Signal horn,D,compressed air 112dB
+300,Rear view mirror type driver,Rear view mirror type driver,C,flat
+300,Rear view mirror type driver,Rear view mirror type driver,D,spherical
+300,Rear view mirror type driver,Rear view mirror type driver,E,spherical EC2003/97
+300,Rear view mirror type driver,Rear view mirror type driver,F,spherical AIS-001/2001
 310,Start function,Start function,A,uniform key
 310,Start function,Start function,B,individual key
 310,Start function,Start function,C,switch
 310,Start function,Start function,D,?xed key
 310,Start function,Start function,E,switch button
 310,Start function,Start function,ZZ,not valid
+313,Side marker lamps,Side marker lamps,A,Finally mounted
+313,Side marker lamps,Side marker lamps,B,Temporarily mounted
+313,Side marker lamps,Side marker lamps,Z,Without
 324,Pre series assembly,Pre series assembly,A,yes
 324,Pre series assembly,Pre series assembly,Z,no
 357,"Fan, driving","Fan, driving",A,Belt drive
@@ -1061,14 +1116,20 @@
 387,OiI cooling for gearbox,Oil cooling for gearbox,B,gearbox IV
 387,OiI cooling for gearbox,Oil cooling for gearbox,Z,without
 387,OiI cooling for gearbox,Oil cooling for gearbox,ZZ,not valid
+391,CB radio,CB radio,B,prepared
+391,CB radio,CB radio,Z,without
+392,"Exhaust outlet, direction","Exhaust outlet, direction",D,Left hand
+392,"Exhaust outlet, direction","Exhaust outlet, direction",B,Backwards
+392,"Exhaust outlet, direction","Exhaust outlet, direction",E,Right hand
+392,"Exhaust outlet, direction","Exhaust outlet, direction",C,Vertical
 397,Oveturn prot.,Overturn protection,A,Tiltsensor 1
 397,Oveturn prot.,Overturn protection,B,Tiltsensor 2
 397,Oveturn prot.,Overturn protection,C,Ro over guard 3
 397,Oveturn prot.,Overturn protection,Z,without
 403,Steering wheel position,Steering wheel position,A,right hand
 403,Steering wheel position,Steering wheel position,B,left hand
-403,Steering wheel position,Steering wheel position,ZZ,not valid
 403,Steering wheel position,Steering wheel position,C,centre
+403,Steering wheel position,Steering wheel position,ZZ,not valid
 404,Exhaust brake control,Exhaust brake control,A,Manual
 404,Exhaust brake control,Exhaust brake control,B,Automatic
 404,Exhaust brake control,Exhaust brake control,C,Man + aut.
@@ -1140,16 +1201,12 @@
 408,Engine type,Engine type,CQ,DC11 07 /330 hp
 408,Engine type,Engine type,CR,DC11 06 /340 hp
 408,Engine type,Engine type,CS,OSC9 G01/260 hp
-408,Engine type,Engine type,CX,DC12 02 /400 hp
-408,Engine type,Engine type,CY,DC12 09 /420 hp
-408,Engine type,Engine type,CZ,DC12 03 /420 hp
-408,Engine type,Engine type,UA,DC13 173/560 hp
-408,Engine type,Engine type,UB,DC13 174/500 hp
-408,Engine type,Engine type,UC,DC13 175/460 hp
-408,Engine type,Engine type,UH,DC13 176/420 hp
 408,Engine type,Engine type,CT,DC9 13 /230 hp
 408,Engine type,Engine type,CU,DC9 12 /270 hp
 408,Engine type,Engine type,CV,DC9 11 /310 hp
+408,Engine type,Engine type,CX,DC12 02 /400 hp
+408,Engine type,Engine type,CY,DC12 09 /420 hp
+408,Engine type,Engine type,CZ,DC12 03 /420 hp
 408,Engine type,Engine type,D,DS9 08 /211 hp
 408,Engine type,Engine type,DA,DC9 04 /230 hp
 408,Engine type,Engine type,DB,DC9 05 /260 hp
@@ -1187,13 +1244,13 @@
 408,Engine type,Engine type,HN,DC6 12 /270 hp
 408,Engine type,Engine type,HP,DC9 21 /310 hp
 408,Engine type,Engine type,HQ,DC9 20 /270 hp
+408,Engine type,Engine type,HR,DC11 09 /380 hp
 408,Engine type,Engine type,HS,DC11 11 /390 hp
 408,Engine type,Engine type,HT,DC11 12 /380 hp
-408,Engine type,Engine type,HV,DC11 10 /340 hp
-408,Engine type,Engine type,HY,DT12 06 /470 hp
-408,Engine type,Engine type,HR,DC11 09 /380 hp
 408,Engine type,Engine type,HU,DC12 07 /430 hp
+408,Engine type,Engine type,HV,DC11 10 /340 hp
 408,Engine type,Engine type,HX,DC11 08 /340 hp
+408,Engine type,Engine type,HY,DT12 06 /470 hp
 408,Engine type,Engine type,HZ,DT12 07 /470 hp
 408,Engine type,Engine type,J,DN11 08 /204 hp
 408,Engine type,Engine type,JA,DC16 08 /620 hp
@@ -1204,7 +1261,6 @@
 408,Engine type,Engine type,JF,DC9 17 /270 hp
 408,Engine type,Engine type,JG,DC9 18 /310 hp
 408,Engine type,Engine type,JH,DC12 14 /420 hp
-408,Engine type,Engine type,JY,DC12 10 /340 hp
 408,Engine type,Engine type,JJ,DC12 06 /420 hp
 408,Engine type,Engine type,JK,DC9 16 /230 hp
 408,Engine type,Engine type,JL,DC9 15 /270 hp
@@ -1218,6 +1274,7 @@
 408,Engine type,Engine type,JU,DC12 11 /380 hp
 408,Engine type,Engine type,JV,DT12 12 /420 hp
 408,Engine type,Engine type,JX,DT12 13 /420 hp
+408,Engine type,Engine type,JY,DC12 10 /340 hp
 408,Engine type,Engine type,JZ,DC12 13 /380 hp
 408,Engine type,Engine type,K,DS11 34 /310 hp
 408,Engine type,Engine type,KA,DT12 03 /470 hp
@@ -1322,7 +1379,10 @@
 408,Engine type,Engine type,PN,DC07 101/280 hp
 408,Engine type,Engine type,PP,DC13 119/550 hp
 408,Engine type,Engine type,PQ,DC13 120/400 hp
+408,Engine type,Engine type,PQ,DC13 120/400 hp
 408,Engine type,Engine type,PR,DC13 121/440 hp
+408,Engine type,Engine type,PR,DC13 121/440 hp
+408,Engine type,Engine type,PS,DC13 122/360 hp
 408,Engine type,Engine type,PS,DC13 122/360 hp
 408,Engine type,Engine type,PT,DC13 123/440 hp
 408,Engine type,Engine type,PU,DC09 114/250 hp
@@ -1393,9 +1453,6 @@
 408,Engine type,Engine type,SM,OC13 101/410 hp
 408,Engine type,Engine type,SP,OC09 104/280 hp
 408,Engine type,Engine type,SQ,OC09 105/340 hp
-408,Engine type,Engine type,PQ,DC13 120/400 hp
-408,Engine type,Engine type,PR,DC13 121/440 hp
-408,Engine type,Engine type,PS,DC13 122/360 hp
 408,Engine type,Engine type,SU,DC09 137/320 hp
 408,Engine type,Engine type,SV,DC13 158/410 hp
 408,Engine type,Engine type,SX,DC13 159/450 hp
@@ -1421,12 +1478,16 @@
 408,Engine type,Engine type,TU,DC13 172/540 hp
 408,Engine type,Engine type,U,DSC11 23/362 hp
 408,Engine type,Engine type,UA,DC13 173/560 hp
+408,Engine type,Engine type,UA,DC13 173/560 hp
 408,Engine type,Engine type,UB,DC13 174/500 hp
+408,Engine type,Engine type,UB,DC13 174/500 hp
+408,Engine type,Engine type,UC,DC13 175/460 hp
 408,Engine type,Engine type,UC,DC13 175/460 hp
 408,Engine type,Engine type,UD,DC13 178/500 hp
 408,Engine type,Engine type,UE,DC13 179/450 hp
 408,Engine type,Engine type,UF,DC13 180/410 hp
 408,Engine type,Engine type,UG,DC09 148/320 hp
+408,Engine type,Engine type,UH,DC13 176/420 hp
 408,Engine type,Engine type,UH,DC13 176/420 hp
 408,Engine type,Engine type,UX,DC13 196/450 hp
 408,Engine type,Engine type,UY,DC13 197/500 hp
@@ -1448,6 +1509,8 @@
 410,"Brake chamber area, 1st front","Brake chamber area, 1st front",C,30 in2
 410,"Brake chamber area, 1st front","Brake chamber area, 1st front",D,16 in2
 410,"Brake chamber area, 1st front","Brake chamber area, 1st front",E,27 in2
+419,Curtain for bed,Curtain for bed,A,with
+419,Curtain for bed,Curtain for bed,Z,Without
 429,Engine location on buses,Engine location on buses,A,S
 429,Engine location on buses,Engine location on buses,B,F-chassi
 429,Engine location on buses,Engine location on buses,C,K-chassi
@@ -1517,44 +1580,59 @@
 458,"Frame, type","Frame, type",K,F600
 458,"Frame, type","Frame, type",L,F957
 458,"Frame, type","Frame, type",Z,Without
+463,Trailer brake connection,Trailer brake connection,A,Type ISO
+463,Trailer brake connection,Trailer brake connection,D,Duomatic
+463,Trailer brake connection,Trailer brake connection,Z,Without
+466,Jack,Jack,E,with
+466,Jack,Jack,Z,Without
+468,Fire extinguisher,Fire extinguisher,A,1 x 2 kg
+468,Fire extinguisher,Fire extinguisher,C,1 x 2 Contran 157/04
+468,Fire extinguisher,Fire extinguisher,F,1 x 2 kg NF61900
+468,Fire extinguisher,Fire extinguisher,G,prepared
+468,Fire extinguisher,Fire extinguisher,Z,without
+472,Noise suppression,Noise suppression,N,80 dBA acc
+472,Noise suppression,Noise suppression,H,84 dBA acc
+472,Noise suppression,Noise suppression,Z,Without
+472,Noise suppression,Noise suppression,T,82 dBA acc
+472,Noise suppression,Noise suppression,R,80 dBA acc to 70/157
+472,Noise suppression,Noise suppression,S,82 dBA acc to 70/157
+474,Headlamp asymmetry,Headlamp asymmetry,A,right hand
+474,Headlamp asymmetry,Headlamp asymmetry,A,right hand
+474,Headlamp asymmetry,Headlamp asymmetry,B,left hand
+474,Headlamp asymmetry,Headlamp asymmetry,B,left hand
+492,"Horn, compressed air","Horn, compressed air",A,with
+492,"Horn, compressed air","Horn, compressed air",Z,without
 494,Compressor man,Compressor manufacturer and type,G,Knorr 360
+494,Compressor man,Compressor manufacturer and type,J,Knorr 600
+494,Compressor man,Compressor manufacturer and type,K,Knorr 720
 494,Compressor man,Compressor manufacturer and type,L,Wabco 636
+494,Compressor man,Compressor manufacturer and type,N,Knorr 720 CR
+494,Compressor man,Compressor manufacturer and type,P,Knorr 630 CR
+494,Compressor man,Compressor manufacturer and type,Q,Knorr 630 LW
 494,Compressor man,Compressor manufacturer and type,R,Knorr 300
 494,Compressor man,Compressor manufacturer and type,S,Knorr 680
 494,Compressor man,Compressor manufacturer and type,T,Knorr 700
 494,Compressor man,Compressor manufacturer and type,U,Knorr 380
-494,Compressor man,Compressor manufacturer and type,J,Knorr 600
-494,Compressor man,Compressor manufacturer and type,K,Knorr 720
-494,Compressor man,Compressor manufacturer and type,N,Knorr 720 CR
-494,Compressor man,Compressor manufacturer and type,P,Knorr 630 CR
-494,Compressor man,Compressor manufacturer and type,Q,Knorr 630 LW
+498,"Rim, material disc wheel","Rim, material disc wheel",A,Steel
+498,"Rim, material disc wheel","Rim, material disc wheel",E,Aluminium
+504,"Finish, chassis","Finish, chassis",A,Normal
 510,Retarder control device,Retarder control device,A,manual
 510,Retarder control device,Retarder control device,B,automatic
 510,Retarder control device,Retarder control device,C,man. - automatic
 510,Retarder control device,Retarder control device,Z,without
 510,Retarder control device,Retarder control device,ZZ,not valid
+514,"Rear mudguard, execution","Rear mudguard, execution",B,High top
+514,"Rear mudguard, execution","Rear mudguard, execution",D,Middle top
+514,"Rear mudguard, execution","Rear mudguard, execution",ZZ,Without
+514,"Rear mudguard, execution","Rear mudguard, execution",A,Low top
+518,Fuel filler cap,Fuel filler cap,A,Lockable
+518,Fuel filler cap,Fuel filler cap,B,Non lockable
+519,Speed limiter,Speed limiter,B,with
+519,Speed limiter,Speed limiter,Z,Without
 520,Fuel,Fuel,A,diesel
 520,Fuel,Fuel,B,ethanol
 520,Fuel,Fuel,C,gas
 552,"Bogie weight, technical","Bogie weight, technical",A,16500 kg
-552,"Bogie weight, technical","Bogie weight, technical",B,18000 kg
-552,"Bogie weight, technical","Bogie weight, technical",C,19400 kg
-552,"Bogie weight, technical","Bogie weight, technical",D,17800 kg
-552,"Bogie weight, technical","Bogie weight, technical",E,16000 kg
-552,"Bogie weight, technical","Bogie weight, technical",F,17000 kg
-552,"Bogie weight, technical","Bogie weight, technical",G,18300 kg
-552,"Bogie weight, technical","Bogie weight, technical",H,"16,3t(6,1+10,2)"
-552,"Bogie weight, technical","Bogie weight, technical",J,15300 kg
-552,"Bogie weight, technical","Bogie weight, technical",K,18800 kg
-552,"Bogie weight, technical","Bogie weight, technical",L,20000 kg
-552,"Bogie weight, technical","Bogie weight, technical",M,25000 kg
-552,"Bogie weight, technical","Bogie weight, technical",N,"30t (15,0+15,0)"
-552,"Bogie weight, technical","Bogie weight, technical",Q,21800 kg
-552,"Bogie weight, technical","Bogie weight, technical",R,17300 kg
-552,"Bogie weight, technical","Bogie weight, technical",S,"26t (13,0+13,0)"
-552,"Bogie weight, technical","Bogie weight, technical",T,29000 kg
-552,"Bogie weight, technical","Bogie weight, technical",U,19900 kg
-552,"Bogie weight, technical","Bogie weight, technical",V,19000 kg
 552,"Bogie weight, technical","Bogie weight, technical",AA,"19ton(11,6+7,4)"
 552,"Bogie weight, technical","Bogie weight, technical",AB,"19ton(10,5+8,5)"
 552,"Bogie weight, technical","Bogie weight, technical",AC,"19ton(9,7+9,3)"
@@ -1577,6 +1655,7 @@
 552,"Bogie weight, technical","Bogie weight, technical",AV,"21ton(11,5+9,5)"
 552,"Bogie weight, technical","Bogie weight, technical",AX,"20ton(10,8+9,2)"
 552,"Bogie weight, technical","Bogie weight, technical",AY,"20ton(11,0+9,0)"
+552,"Bogie weight, technical","Bogie weight, technical",B,18000 kg
 552,"Bogie weight, technical","Bogie weight, technical",BA,"24(6,9+11,5+5,6)"
 552,"Bogie weight, technical","Bogie weight, technical",BB,"24(6,5+11,0+6,5)"
 552,"Bogie weight, technical","Bogie weight, technical",BC,"32,5(6,5+13+13)"
@@ -1599,6 +1678,7 @@
 552,"Bogie weight, technical","Bogie weight, technical",BV,"10,3+10,3+7,4)"
 552,"Bogie weight, technical","Bogie weight, technical",BX,"27(6,9+11,5+8,6)"
 552,"Bogie weight, technical","Bogie weight, technical",BY,"16,6t(9,5+7,1)"
+552,"Bogie weight, technical","Bogie weight, technical",C,19400 kg
 552,"Bogie weight, technical","Bogie weight, technical",CA,"32t (16,0+16,0)"
 552,"Bogie weight, technical","Bogie weight, technical",CB,27(7+10+10)
 552,"Bogie weight, technical","Bogie weight, technical",CC,"27(6+10,5+10,5)"
@@ -1621,6 +1701,7 @@
 552,"Bogie weight, technical","Bogie weight, technical",CV,"16,7t (9,2+7,5)"
 552,"Bogie weight, technical","Bogie weight, technical",CX,"26t (6,8+10,5+8,7)"
 552,"Bogie weight, technical","Bogie weight, technical",CY,"22,5 (3x7,5)"
+552,"Bogie weight, technical","Bogie weight, technical",D,17800 kg
 552,"Bogie weight, technical","Bogie weight, technical",DA,29t (9+10+10)
 552,"Bogie weight, technical","Bogie weight, technical",DB,33t (9+12+12)
 552,"Bogie weight, technical","Bogie weight, technical",DC,35t (9+13+13)
@@ -1641,6 +1722,7 @@
 552,"Bogie weight, technical","Bogie weight, technical",DT,"33,8t (13+13+7,8)"
 552,"Bogie weight, technical","Bogie weight, technical",DU,"24(6+10,5+7,5)"
 552,"Bogie weight, technical","Bogie weight, technical",DV,"27t(8+10,5+8,5)"
+552,"Bogie weight, technical","Bogie weight, technical",E,16000 kg
 552,"Bogie weight, technical","Bogie weight, technical",EA,"22t(11,0+11,0)"
 552,"Bogie weight, technical","Bogie weight, technical",EB,38t (19+19)
 552,"Bogie weight, technical","Bogie weight, technical",EC,19t (10+9)
@@ -1655,7 +1737,23 @@
 552,"Bogie weight, technical","Bogie weight, technical",EM,"33,5t (7,5+13+13)"
 552,"Bogie weight, technical","Bogie weight, technical",EN,26t (8+9+9)
 552,"Bogie weight, technical","Bogie weight, technical",EO,28t (8+10+10)
+552,"Bogie weight, technical","Bogie weight, technical",F,17000 kg
+552,"Bogie weight, technical","Bogie weight, technical",G,18300 kg
+552,"Bogie weight, technical","Bogie weight, technical",H,"16,3t(6,1+10,2)"
+552,"Bogie weight, technical","Bogie weight, technical",J,15300 kg
+552,"Bogie weight, technical","Bogie weight, technical",K,18800 kg
+552,"Bogie weight, technical","Bogie weight, technical",L,20000 kg
+552,"Bogie weight, technical","Bogie weight, technical",M,25000 kg
+552,"Bogie weight, technical","Bogie weight, technical",N,"30t (15,0+15,0)"
+552,"Bogie weight, technical","Bogie weight, technical",Q,21800 kg
+552,"Bogie weight, technical","Bogie weight, technical",R,17300 kg
+552,"Bogie weight, technical","Bogie weight, technical",S,"26t (13,0+13,0)"
+552,"Bogie weight, technical","Bogie weight, technical",T,29000 kg
+552,"Bogie weight, technical","Bogie weight, technical",U,19900 kg
+552,"Bogie weight, technical","Bogie weight, technical",V,19000 kg
 552,"Bogie weight, technical","Bogie weight, technical",ZZ,not valid
+557,Fuel heater,Fuel heater,A,with
+557,Fuel heater,Fuel heater,Z,Without
 579,Cab special adaptation,Cab special adaptation,A,Crew cab 1434
 579,Cab special adaptation,Cab special adaptation,B,no
 579,Cab special adaptation,Cab special adaptation,C,Crew cab 1714
@@ -1668,8 +1766,243 @@
 584,Roof height,Roof height,B,high (Topline)
 584,Roof height,Roof height,C,low
 584,Roof height,Roof height,D,high
+599,Assembly level,Assembly level,A,"CBU, Completely Build Up"
 615,Cruise control,Cruise control,A,with
 615,Cruise control,Cruise control,Z,without
+621,Parking brake valve,Parking brake valve,A,With check position
+621,Parking brake valve,Parking brake valve,B,Without check position
+664,Trailer electric connector,Trailer electric connector,A,1x7 pole (24N) ISO 1185
+664,Trailer electric connector,Trailer electric connector,D,1x15 pole ISO 12098
+664,Trailer electric connector,Trailer electric connector,Z,Without
+699,Trailer electric coil cable,Trailer electric coil cable,G,15 to 15 + 15 to 2x7 pole
+699,Trailer electric coil cable,Trailer electric coil cable,F,15 pole to 2x7 pole
+699,Trailer electric coil cable,Trailer electric coil cable,E,15 pole to 15 pole
+699,Trailer electric coil cable,Trailer electric coil cable,H,7 pole to 7 pole
+699,Trailer electric coil cable,Trailer electric coil cable,Z,Without
+770,GTW Technical,GTW Technical,FE,77000 kg
+770,GTW Technical,GTW Technical,JR, 145000 kg 
+770,GTW Technical,GTW Technical,JJ, 135000 kg
+770,GTW Technical,GTW Technical,HJ, 104000 kg
+770,GTW Technical,GTW Technical,GH, 82000 kg 
+770,GTW Technical,GTW Technical,FJ, 76000 kg
+770,GTW Technical,GTW Technical,HB, 90000 kg
+770,GTW Technical,GTW Technical,JC, 150000 kg 
+770,GTW Technical,GTW Technical,JN, 240000 kg
+770,GTW Technical,GTW Technical,HN, 108000 kg
+770,GTW Technical,GTW Technical,GL, 88000 kg 
+770,GTW Technical,GTW Technical,HS, 113000 kg
+770,GTW Technical,GTW Technical,GQ, 93000 kg 
+770,GTW Technical,GTW Technical,HF, 101000 kg
+770,GTW Technical,GTW Technical,JG, 115000 kg
+770,GTW Technical,GTW Technical,JB, 110000 kg
+770,GTW Technical,GTW Technical,FD, 74000 kg 
+770,GTW Technical,GTW Technical,FB, 75000 kg 
+770,GTW Technical,GTW Technical,JF, 154000 kg
+770,GTW Technical,GTW Technical,JK, 210000 kg
+770,GTW Technical,GTW Technical,HK, 105000 kg
+770,GTW Technical,GTW Technical,FF, 72000 kg 
+770,GTW Technical,GTW Technical,FK, 79000 kg
+770,GTW Technical,GTW Technical,JO, 250000 kg
+770,GTW Technical,GTW Technical,HR, 112000 kg
+770,GTW Technical,GTW Technical,JP, 179000 kg
+770,GTW Technical,GTW Technical,JS, 174000 kg
+770,GTW Technical,GTW Technical,GM, 89000 kg
+770,GTW Technical,GTW Technical,HP, 109000 kg
+770,GTW Technical,GTW Technical,FG, 71000 kg
+770,GTW Technical,GTW Technical,JT, 217000 kg 
+770,GTW Technical,GTW Technical,GA, 80000 kg
+770,GTW Technical,GTW Technical,HT, 114000 kg
+770,GTW Technical,GTW Technical,GR, 94000 kg 
+770,GTW Technical,GTW Technical,GD, 84000 kg
+770,GTW Technical,GTW Technical,JH, 133000 kg
+770,GTW Technical,GTW Technical,GE, 86500 kg
+770,GTW Technical,GTW Technical,HH, 103000 kg
+770,GTW Technical,GTW Technical,FH, 73000 kg
+770,GTW Technical,GTW Technical,HD, 98000 kg
+770,GTW Technical,GTW Technical,JL, 119500 kg 
+770,GTW Technical,GTW Technical,JQ, 179500 kg
+770,GTW Technical,GTW Technical,HL, 106000 kg
+770,GTW Technical,GTW Technical,GJ, 86000 kg 
+770,GTW Technical,GTW Technical,HQ, 111000 kg
+770,GTW Technical,GTW Technical,GN, 91000 kg 
+770,GTW Technical,GTW Technical,GS, 95000 kg
+770,GTW Technical,GTW Technical,HC, 97000 kg
+770,GTW Technical,GTW Technical,GG, 81000 kg
+770,GTW Technical,GTW Technical,GB, 82500 kg)
+770,GTW Technical,GTW Technical,HG, 102000 kg 
+770,GTW Technical,GTW Technical,JM, 160000 kg
+770,GTW Technical,GTW Technical,GF, 85000 kg
+770,GTW Technical,GTW Technical,HM, 107000 kg
+770,GTW Technical,GTW Technical,GK, 87000 kg
+770,GTW Technical,GTW Technical,JA, 100000 kg
+770,GTW Technical,GTW Technical,HA, 96000 kg
+770,GTW Technical,GTW Technical,GP, 92000 kg
+770,GTW Technical,GTW Technical,JD, 180000 kg
+770,GTW Technical,GTW Technical,JE, 120000 kg
+770,GTW Technical,GTW Technical,HE, 99000 kg
+770,GTW Technical,GTW Technical,GC, 83000 kg
+770,GTW Technical,GTW Technical,EC,60000 kg
+770,GTW Technical,GTW Technical,AP, 19500 kg
+770,GTW Technical,GTW Technical,DE, 55000 kg
+770,GTW Technical,GTW Technical,CC, 43200 kg 
+770,GTW Technical,GTW Technical,BE, 36000 kg
+770,GTW Technical,GTW Technical,BV, 39500 kg 
+770,GTW Technical,GTW Technical,EG, 67000 kg
+770,GTW Technical,GTW Technical,AT, 26500 kg 
+770,GTW Technical,GTW Technical,AY, 27400 kg
+770,GTW Technical,GTW Technical,EH, 67500 kg
+770,GTW Technical,GTW Technical,CQ, 48500 kg
+770,GTW Technical,GTW Technical,CG, 40500 kg
+770,GTW Technical,GTW Technical,DJ, 57000 kg
+770,GTW Technical,GTW Technical,AG, 29300 kg 
+770,GTW Technical,GTW Technical,BJ, 33000 kg 
+770,GTW Technical,GTW Technical,AH, 21000 kg
+770,GTW Technical,GTW Technical,BH, 37500 kg 
+770,GTW Technical,GTW Technical,CL, 45000 kg
+770,GTW Technical,GTW Technical,BN, 31900 kg 
+770,GTW Technical,GTW Technical,AL, 26000 kg 
+770,GTW Technical,GTW Technical,KD, 17000 kg
+770,GTW Technical,GTW Technical,AQ, 30000 kg 
+770,GTW Technical,GTW Technical,BS, 36700 kg 
+770,GTW Technical,GTW Technical,DB, 52000 kg
+770,GTW Technical,GTW Technical,AW, 18500 kg
+770,GTW Technical,GTW Technical,BB, 35300 kg
+770,GTW Technical,GTW Technical,ED, 66000 kg 
+770,GTW Technical,GTW Technical,AU, 27900 kg 
+770,GTW Technical,GTW Technical,BX, 23000 kg
+770,GTW Technical,GTW Technical,DF, 30500 kg 
+770,GTW Technical,GTW Technical,CD, 43750 kg
+770,GTW Technical,GTW Technical,DK, 31500 kg 
+770,GTW Technical,GTW Technical,AK, 22500 kg 
+770,GTW Technical,GTW Technical,BF, 37950 kg
+770,GTW Technical,GTW Technical,AD, 24390 kg
+770,GTW Technical,GTW Technical,BK, 35000 kg
+770,GTW Technical,GTW Technical,KA, 16500 kg
+770,GTW Technical,GTW Technical,AZ, 26400 kg
+770,GTW Technical,GTW Technical,CM, 43600 kg
+770,GTW Technical,GTW Technical,BO, 32900 kg 
+770,GTW Technical,GTW Technical,AM, 27500 kg
+770,GTW Technical,GTW Technical,BP, 23500 kg
+770,GTW Technical,GTW Technical,EA, 68000 kg 
+770,GTW Technical,GTW Technical,DC, 54000 kg
+770,GTW Technical,GTW Technical,BR, 32000 kg 
+770,GTW Technical,GTW Technical,CA, 44000 kg 
+770,GTW Technical,GTW Technical,CR, 52800 kg 
+770,GTW Technical,GTW Technical,BC, 36500 kg 
+770,GTW Technical,GTW Technical,AA, 20000 kg 
+770,GTW Technical,GTW Technical,BT, 21700 kg 
+770,GTW Technical,GTW Technical,AR, 25000 kg
+770,GTW Technical,GTW Technical,EE, 62500 kg 
+770,GTW Technical,GTW Technical,BY, 35385 kg 
+770,GTW Technical,GTW Technical,DG, 32500 kg
+770,GTW Technical,GTW Technical,CE, 46000 kg 
+770,GTW Technical,GTW Technical,DH, 33500 kg
+770,GTW Technical,GTW Technical,BG, 31000 kg
+770,GTW Technical,GTW Technical,AE, 28000 kg
+770,GTW Technical,GTW Technical,AV, 27000 kg
+770,GTW Technical,GTW Technical,DL, 41500 kg
+770,GTW Technical,GTW Technical,CJ, 46500 kg
+770,GTW Technical,GTW Technical,BL, 34000 kg
+770,GTW Technical,GTW Technical,AJ, 22000 kg 
+770,GTW Technical,GTW Technical,CN, 47000 kg 
+770,GTW Technical,GTW Technical,AN, 29000 kg 
+770,GTW Technical,GTW Technical,BU, 38500 kg 
+770,GTW Technical,GTW Technical,AS, 25500 kg
+770,GTW Technical,GTW Technical,EB, 65000 kg
+770,GTW Technical,GTW Technical,KB, 18000 kg 
+770,GTW Technical,GTW Technical,BQ, 35500 kg 
+770,GTW Technical,GTW Technical,CB,40000 kg 
+770,GTW Technical,GTW Technical,BD, 38000 kg
+770,GTW Technical,GTW Technical,AB, 20500 kg
+770,GTW Technical,GTW Technical,EF, 66500 kg (
+770,GTW Technical,GTW Technical,BZ, 38300 kg
+770,GTW Technical,GTW Technical,CH, 43500 kg
+770,GTW Technical,GTW Technical,AX, 28500 kg
+770,GTW Technical,GTW Technical,CF, 41000 kg
+770,GTW Technical,GTW Technical,DM, 56000 kg 
+770,GTW Technical,GTW Technical,CK, 47500 kg 
+770,GTW Technical,GTW Technical,AF, 28300 kg
+770,GTW Technical,GTW Technical,BM, 35900 kg
+770,GTW Technical,GTW Technical,KC, 19490 kg 
+770,GTW Technical,GTW Technical,FA, 70000 kg
+770,GTW Technical,GTW Technical,EO, vacant
+770,GTW Technical,GTW Technical,DA, 50000 kg
+770,GTW Technical,GTW Technical,ZZ, without
+770,GTW Technical,GTW Technical,AC, 21500 kg
+770,GTW Technical,GTW Technical,CP, 48000 kg
+770,GTW Technical,GTW Technical,BA, 32520 kg 
+770,GTW Technical,GTW Technical,AO, 29500 kg 
+770,GTW Technical,GTW Technical,FC,78000 kg
+771,GTW Legal,GTW Legal,EP,45000 kg
+771,GTW Legal,GTW Legal,ZZ, without
+779,Disc brake (price),Disc brake (price),Z,Without
+779,Disc brake (price),Disc brake (price),DC,Four axles
+780,"Fit For Use, FFU","Fit For Use, FFU",A,with
+780,"Fit For Use, FFU","Fit For Use, FFU",B,Prototype
+780,"Fit For Use, FFU","Fit For Use, FFU",Z,Without
+809,Driver Seat,Driver Seat,EA,Luxury
+809,Driver Seat,Driver Seat,EB,Medium
+809,Driver Seat,Driver Seat,EC,Basic
+809,Driver Seat,Driver Seat,EE,Static
+821,Legal weight front axle,Legal weight front axle,K,6700 kg
+821,Legal weight front axle,Legal weight front axle,ZZ,Without
+822,Legal weight 1st rear axle,Legal weight 1st rear axle,C,9000 kg
+822,Legal weight 1st rear axle,Legal weight 1st rear axle,ZZ,Without
+823,Legal weight 2nd rear axle,Legal weight 2nd rear axle,ZZ,Without
+823,Legal weight 2nd rear axle,Legal weight 2nd rear axle,T,16000 kg
+824,"Legal GVW, Gross Vehicle Weight","Legal GVW, Gross Vehicle Weight",ZZ,Without
+824,"Legal GVW, Gross Vehicle Weight","Legal GVW, Gross Vehicle Weight",BG,31000 kg
+827,Gearbox type,Gearbox type,C,Mechanical with overdrive
+827,Gearbox type,Gearbox type,A,Automatic
+827,Gearbox type,Gearbox type,B,Mechanical
+828,Suspension system,Suspension system,Z,Leaf front + Leaf rear
+828,Suspension system,Suspension system,A,Leaf front + Air rear
+841,Tire size front,Tire size front,K,315/80
+843,Tyre size tandem/support/steer,Tyre size tandem/support/steer,LA,325/95R24
+844,Tyre size spare,Tyre size spare,E,12R22.5
+845,Tyre size rear 1,Tyre size rear 1,FA,305/70
+852,Engine PTO preparation,Engine PTO preparation,AB,D12 without price
+852,Engine PTO preparation,Engine PTO preparation,AF,D16 with price
+852,Engine PTO preparation,Engine PTO preparation,AA,D9 with price
+852,Engine PTO preparation,Engine PTO preparation,Z,Without
+852,Engine PTO preparation,Engine PTO preparation,AE,D12 with price
+852,Engine PTO preparation,Engine PTO preparation,N/A,N/A
+852,Engine PTO preparation,Engine PTO preparation,AG,D9 w/o price
+853,Tyre quantity front,Tyre quantity front,C,4
+855,Tyre quantity rear 1,Tyre quantity rear 1,C,4
+857,Tyre quantity tandem/support/steer,Tyre quantity tandem/support/steer,C,4
+859,Tyre quantity spare,Tyre quantity spare,B,1
+859,Tyre quantity spare,Tyre quantity spare,A,0
+861,Rim quantity front axle(s),Rim quantity front axle(s),C,4
+873,Passenger seat,Passenger seat,EA,Luxury
+873,Passenger seat,Passenger seat,EB,Medium
+873,Passenger seat,Passenger seat,ED,Folding seat
+873,Passenger seat,Passenger seat,EE,Static
+873,Passenger seat,Passenger seat,EG,Basic static 
+873,Passenger seat,Passenger seat,ZZ,without
+889,Cab type ,Cab type ,CQ,CP19H (High roof height)
+889,Cab type ,Cab type ,CS,CR19H (High roof height)
+889,Cab type ,Cab type ,CD, CP19 
+889,Cab type ,Cab type ,CP,CP19L (Low roof height)
+889,Cab type ,Cab type ,CY,CG19H (High roof height)
+889,Cab type ,Cab type ,CM, CP16
+889,Cab type ,Cab type ,CA, CP14 
+889,Cab type ,Cab type ,CU,CG16 
+889,Cab type ,Cab type ,CX,CG19L (Low roof height
+889,Cab type ,Cab type ,CT,CG14
+924,Assembly workshop,Assembly workshop,Z,Line
+925,Superstructure,Superstructure,Z,Without
+925,Superstructure,Superstructure,Z,Without
+941,S-order,S-order,B,With
+941,S-order,S-order,Z,Without
+967,Trailer brake (price),Trailer brake (price),NB,B-Adaptation
+967,Trailer brake (price),Trailer brake (price),Z,Without
+967,Trailer brake (price),Trailer brake (price),NB,B-Adaptation
+967,Trailer brake (price),Trailer brake (price),Z,Without
+1002,"Rear view mirror, passenger","Rear view mirror, passenger",B,flat
+1002,"Rear view mirror, passenger","Rear view mirror, passenger",D,spherical
+1002,"Rear view mirror, passenger","Rear view mirror, passenger",E,spherical EC2003/97
+1002,"Rear view mirror, passenger","Rear view mirror, passenger",F,spherical AIS-001/2001
 1019,Wheel assy rear,"Wheel, assembly rear axle",A,single
 1019,Wheel assy rear,"Wheel, assembly rear axle",B,twin
 1020,Wheel mo tag ax,Wheel mount trail tag axle,A,single
@@ -1861,6 +2194,13 @@
 1202,Engine Type Symbol,Engine Type Symbol,,
 1225,External storage compartment,Extemal storage compartment,A,right
 1225,External storage compartment,Extemal storage compartment,Z,without
+1229,Lateral protection,Lateral protection,A,With
+1229,Lateral protection,Lateral protection,Z,Without
+1233,Wheel chock,Wheel chock,A,1 piece
+1233,Wheel chock,Wheel chock,Z,Without
+1233,Wheel chock,Wheel chock,B,2 pieces
+1243,Aircleaner safety filter,Aircleaner safety filter,A,With
+1243,Aircleaner safety filter,Aircleaner safety filter,Z,Without
 1249,Component,Component,S,engine
 1251,Engine rev,Engine rev / Operation speed,A,1500
 1251,Engine rev,Engine rev / Operation speed,B,1550
@@ -2063,26 +2403,34 @@
 1256,Country code according to ISO,Country code according to ISO,ZR,Zaire
 1256,Country code according to ISO,Country code according to ISO,ZW,Zimbabwe
 1256,Country code according to ISO,Country code according to ISO,ZZ,not valid
+1298,Power Take-Off gear independent,Power Take-Off gear independent,H,EK740
+1298,Power Take-Off gear independent,Power Take-Off gear independent,G,EK730
+1298,Power Take-Off gear independent,Power Take-Off gear independent,Z,Without
+1298,Power Take-Off gear independent,Power Take-Off gear independent,K,EK750F
+1302,Door window,Door window,A,single glass
+1302,Door window,Door window,B,double glass (
+1313,End outline marker lamp,End outline marker lamp,A,white
+1313,End outline marker lamp,End outline marker lamp,B,amber
 1323,Development level,Development level,E,5
 1323,Development level,Development level,F,6
 1329,Spot lamp in ext. sun visor,Spot lamp in ext. sun visor,A,with
 1329,Spot lamp in ext. sun visor,Spot lamp in ext. sun visor,B,preparation
 1329,Spot lamp in ext. sun visor,Spot lamp in ext. sun visor,Z,without
+1330,Beacon,Beacon,B,prepared
+1330,Beacon,Beacon,Z,without
+1330,Beacon,Beacon,A,with
+1331,Window side,Window side,B,Left
+1331,Window side,Window side,A,Right
+1331,Window side,Window side,C,Left + right
+1331,Window side,Window side,Z,Without
+1332,Curtain rear window,Curtain rear window,A,with
+1332,Curtain rear window,Curtain rear window,Z,without
 1334,"Air spring height, front","Air spring height, front",A,normal
 1334,"Air spring height, front","Air spring height, front",B,low
 1334,"Air spring height, front","Air spring height, front",C,extra low
+1339,"ABS, Anti-lock brakes","ABS, Anti-lock brakes",A,With
+1339,"ABS, Anti-lock brakes","ABS, Anti-lock brakes",Z,Without
 1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",A,"37 0/-1,7 deg"
-1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",B,"38 0/-1,0 deg"
-1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",C,"40 0/-1,0 deg"
-1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",D,"42 0/-1,0 deg"
-1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",E,"44 0/-1,0 deg"
-1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",F,"46 0/-1,0 deg"
-1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",G,"50 0/-3,0 deg"
-1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",H,"50 0/-1,0 deg"
-1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",J,"52 0/-1,0 deg"
-1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",K,"48 0/-3,0 deg"
-1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",L,"36 0/-1,0 deg"
-1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",M,39 max
 1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",AA,38 max
 1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",AB,41 max
 1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",AC,42 max
@@ -2099,6 +2447,7 @@
 1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",AP,37 max
 1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",AQ,35 max
 1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",AR,43 max
+1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",B,"38 0/-1,0 deg"
 1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",BA,33 max
 1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",BB,34 max
 1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",BC,40 max
@@ -2106,19 +2455,18 @@
 1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",BE,49 max
 1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",BF,51 max
 1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",BG,53 max
+1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",C,"40 0/-1,0 deg"
+1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",D,"42 0/-1,0 deg"
+1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",E,"44 0/-1,0 deg"
+1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",F,"46 0/-1,0 deg"
+1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",G,"50 0/-3,0 deg"
+1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",H,"50 0/-1,0 deg"
+1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",J,"52 0/-1,0 deg"
+1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",K,"48 0/-3,0 deg"
+1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",L,"36 0/-1,0 deg"
+1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",M,39 max
 1345,"Steering angle 1st, RH turn","Steering angle 1st, RH turn",ZZ,not valid
 1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",A,"37 0/-1,7 deg"
-1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",B,"38 0/-1,0 deg"
-1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",C,"40 0/-1,0 deg"
-1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",D,"42 0/-1,0 deg"
-1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",E,"44 0/-1,0 deg"
-1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",F,"46 0/-1,0 deg"
-1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",G,"50 0/-3,0 deg"
-1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",H,"50 0/-1,0 deg"
-1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",J,"52 0/-1,0 deg"
-1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",K,"48 0/-3,0 deg"
-1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",L,"36 0/-1,0 deg"
-1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",M,39 max
 1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",AA,38 max
 1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",AB,41 max
 1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",AC,42 max
@@ -2135,6 +2483,7 @@
 1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",AP,37 max
 1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",AQ,35 max
 1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",AR,43 max
+1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",B,"38 0/-1,0 deg"
 1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",BA,33 max
 1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",BB,34 max
 1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",BC,40 max
@@ -2142,6 +2491,16 @@
 1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",BE,49 max
 1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",BF,51 max
 1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",BG,53 max
+1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",C,"40 0/-1,0 deg"
+1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",D,"42 0/-1,0 deg"
+1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",E,"44 0/-1,0 deg"
+1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",F,"46 0/-1,0 deg"
+1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",G,"50 0/-3,0 deg"
+1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",H,"50 0/-1,0 deg"
+1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",J,"52 0/-1,0 deg"
+1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",K,"48 0/-3,0 deg"
+1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",L,"36 0/-1,0 deg"
+1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",M,39 max
 1346,"Steering angle 1st, LH turn","Steering angle 1st, LH turn",ZZ,not valid
 1353,Load transfer,Load transfer,A,max 10000 kg
 1353,Load transfer,Load transfer,AA,with
@@ -2156,11 +2515,33 @@
 1353,Load transfer,Load transfer,K,max 5400 kg
 1353,Load transfer,Load transfer,Z,without
 1353,Load transfer,Load transfer,ZZ,not valid
+1353,Load transfer,Load transfer,G,Max 12350 kg
+1353,Load transfer,Load transfer,F,Max 16900 kg
+1353,Load transfer,Load transfer,E,13600 kg 
+1353,Load transfer,Load transfer,A,10000 kg
+1353,Load transfer,Load transfer,C,14900 kg
+1353,Load transfer,Load transfer,B,Max 13000 kg
+1353,Load transfer,Load transfer,Z,Without
+1363,"Air defl., delivery procedure","Air defl., delivery procedure",A,mounted
+1363,"Air defl., delivery procedure","Air defl., delivery procedure",B,delivered
 1366,"Frame, edge protection","Frame, edge protection",A,with
 1366,"Frame, edge protection","Frame, edge protection",Z,without
+1367,Steering force 70/311/EEC,Steering force 70/311/EEC,A,With
+1367,Steering force 70/311/EEC,Steering force 70/311/EEC,B,Without
+1368,Fuel tank location,Fuel tank location,B,Normal
+1368,Fuel tank location,Fuel tank location,A,High
+1368,Fuel tank location,Fuel tank location,D,Extra high
+1368,Fuel tank location,Fuel tank location,C,Low
+1369,Trailer connector bracket,Trailer connector bracket,Z,Without
+1369,Trailer connector bracket,Trailer connector bracket,A,Behind cab
+1369,Trailer connector bracket,Trailer connector bracket,B,Rear frame end
 1370,Fuel tank sectional area,Fuel kat Betyder det sensor?,C,cylindrical
 1370,Fuel tank sectional area,Fuel kat Betyder det sensor?,G,general
 1370,Fuel tank sectional area,Fuel kat Betyder det sensor?,W,wide
+1399,Cab roof lamp,Cab roof lamp,Z,without
+1399,Cab roof lamp,Cab roof lamp,C,amber
+1401,Roof rail,Roof rail,A,with
+1401,Roof rail,Roof rail,Z,without
 1405,Wheel brake,Wheel brake,A,drum
 1405,Wheel brake,Wheel brake,B,disc
 1406,Axle Distance,Axle Distance,AA,2825 mm
@@ -2281,6 +2662,18 @@
 1406,Axle Distance,Axle Distance,SU,9762 mm
 1406,Axle Distance,Axle Distance,Z,without
 1406,Axle Distance,Axle Distance,ZZ,not valid
+1412,Working light,Working light,B,prepared
+1412,Working light,Working light,Z,without
+1416,Contrast tapes door/sidewall,Contrast tapes door/sidewall,A,with
+1416,Contrast tapes door/sidewall,Contrast tapes door/sidewall,Z,without
+1421,Spray suppression,Spray suppression,A,With
+1421,Spray suppression,Spray suppression,Z,Without
+1436,Reduced quantity of the tyres,Reduced quantity of the tyres,B,NO
+1440,Hoist washers,Hoist washers,Z,Without
+1442,"Brake shoe width 10"" rear axle","Brake shoe width 10"" rear axle",A,With
+1442,"Brake shoe width 10"" rear axle","Brake shoe width 10"" rear axle",Z,Without
+1443,"Air tanks, rubber spacer","Air tanks, rubber spacer",A,With
+1443,"Air tanks, rubber spacer","Air tanks, rubber spacer",Z,Without
 1450,"Bogie designation, type","Bogie designation, type",A,BT200B
 1450,"Bogie designation, type","Bogie designation, type",B,BT200I
 1450,"Bogie designation, type","Bogie designation, type",C,BT300B
@@ -2294,6 +2687,8 @@
 1450,"Bogie designation, type","Bogie designation, type",L,BT301S
 1450,"Bogie designation, type","Bogie designation, type",M,BT400S
 1450,"Bogie designation, type","Bogie designation, type",ZZ,not valid
+1453,Tyre directive 92/23/EU,Tyre directive 92/23/EU,A,With
+1453,Tyre directive 92/23/EU,Tyre directive 92/23/EU,Z,Without
 1463,Gear selector type,Gear selector type,B,R-N-D
 1463,Gear selector type,Gear selector type,C,R-N-D-3-2-1
 1463,Gear selector type,Gear selector type,D,D-N-R horiz
@@ -2309,6 +2704,8 @@
 1472,Front axle distance,Front axle distance,D,1990 mm
 1472,Front axle distance,Front axle distance,E,2290 mm
 1472,Front axle distance,Front axle distance,F,2300 mm
+1474,Stop light trailer brake,Stop light trailer brake,A,With
+1474,Stop light trailer brake,Stop light trailer brake,Z,Without
 1476,Air suspens. lowering partial,Air suspens. lowering partial,A,whole front
 1476,Air suspens. lowering partial,Air suspens. lowering partial,B,instep
 1476,Air suspens. lowering partial,Air suspens. lowering partial,C,whole side
@@ -2333,6 +2730,53 @@
 1493,Brake category,Brake category,CD,CD
 1493,Brake category,Brake category,D,D
 1493,Brake category,Brake category,E,E
+1502,Chassis colour,Chassis colour,Y,Sub grey
+1502,Chassis colour,Chassis colour,NN,Blue Q8 FLN5746 Akzo16104
+1502,Chassis colour,Chassis colour,HZ,Yellow Akzo16039 
+1502,Chassis colour,Chassis colour,BP,Grey Herb4166664 
+1502,Chassis colour,Chassis colour,KZ,Red ICI A362 
+1502,Chassis colour,Chassis colour,JZ,Red SS391 
+1502,Chassis colour,Chassis colour,GJ,Red Int83072 
+1502,Chassis colour,Chassis colour,EU,Brown RAL 8004 
+1502,Chassis colour,Chassis colour,BY,Brown NCS7005Y80R
+1502,Chassis colour,Chassis colour,MK,Green Lemon Int95081 
+1502,Chassis colour,Chassis colour,PZ,Green RAL6026
+1502,Chassis colour,Chassis colour,ZA,Green FLN6374 
+1502,Chassis colour,Chassis colour,LZ,Blue Riviera Akzo16930 
+1502,Chassis colour,Chassis colour,UC,Blue RAL5024 Int54057 
+1502,Chassis colour,Chassis colour,NZ,Blue PPG901S1847973
+1502,Chassis colour,Chassis colour,MZ,Blue VOLVO1604
+1502,Chassis colour,Chassis colour,QZ,BLUE PACIFIC 
+1502,Chassis colour,Chassis colour,RZ,Blue ICI AF31 
+1502,Chassis colour,Chassis colour,YZ,Blue Atlantic 
+1502,Chassis colour,Chassis colour,BX,Blue PPG901S1847976
+1502,Chassis colour,Chassis colour,AX,Blue Int84201 
+1502,Chassis colour,Chassis colour,ZC,Blue INT74119 
+1502,Chassis colour,Chassis colour,ZE,Red RAL3016 
+1502,Chassis colour,Chassis colour,ZF,Blue Int84097
+1503,Body colour ,Body colour ,A,Red Akzo16007
+1503,Body colour ,Body colour ,C,green Herb4166619
+1503,Body colour ,Body colour ,D,Black Akzo16018 
+1503,Body colour ,Body colour ,G,ASG-blue NCS7019 
+1503,Body colour ,Body colour ,H, Red Akzo16914 
+1503,Body colour ,Body colour ,M,Blue RAL5010
+1503,Body colour ,Body colour ,N,Green Akzo16003 
+1503,Body colour ,Body colour ,P, Blue RAL5018 
+1503,Body colour ,Body colour ,Q, Yellow RAL1018
+1503,Body colour ,Body colour ,R,PPG34250336 
+1503,Body colour ,Body colour ,T,Grey RAL7035 
+1503,Body colour ,Body colour ,U, Green Akzo16011
+1503,Body colour ,Body colour ,X,Orange Akzo16015
+1503,Body colour ,Body colour ,Y, Green RAL6005 
+1503,Body colour ,Body colour ,ZQ,Blue P488 NJ85 Int64105 
+1503,Body colour ,Body colour ,BH,White Ivory
+1503,Body colour ,Body colour ,KX,Black Ebony 
+1503,Body colour ,Body colour ,MP,Blue Baltic
+1504,Cab colour category,Cab colour category,A,category 1
+1504,Cab colour category,Cab colour category,B,category 2
+1504,Cab colour category,Cab colour category,C,category 0
+1504,Cab colour category,Cab colour category,D,category 3
+1504,Cab colour category,Cab colour category,E,category 4
 1507,Transfer gear case,Transfer gear case,A,GTD800
 1507,Transfer gear case,Transfer gear case,B,GTD900
 1507,Transfer gear case,Transfer gear case,C,GT800
@@ -2356,12 +2800,18 @@
 1511,Warning signal uncon.seat belt,Warning signal uncon.seat belt,Z,without
 1521,Wheel brake tag axle,Wheel brake tag axle,A,drum
 1521,Wheel brake tag axle,Wheel brake tag axle,B,disc
+1524,"Bulk cargo fenders, front","Bulk cargo fenders, front",A,With
+1524,"Bulk cargo fenders, front","Bulk cargo fenders, front",Z,Without
+1525,Fuel cooler,Fuel cooler,B,Prepared
+1525,Fuel cooler,Fuel cooler,Z,Without
 1528,Tag axle pos,"Load transfer, tag axle pos",A,always down
 1528,Tag axle pos,"Load transfer, tag axle pos",B,lifted unloaded
 1529,Drawbeam,Drawbeam,A,?nally mounted
 1529,Drawbeam,Drawbeam,B,temp. mounted
 1529,Drawbeam,Drawbeam,C,with
 1529,Drawbeam,Drawbeam,Z,without
+1532,Taillamp position,Taillamp position,B,On Underrun protection
+1532,Taillamp position,Taillamp position,A,On Bracket
 1536,Drawbeam type,Drawbeam type,A,central DB130
 1536,Drawbeam type,Drawbeam type,B,central DB190
 1536,Drawbeam type,Drawbeam type,C,semi-undermount
@@ -3113,6 +3563,8 @@
 1790,Belt pretensioner,Belt pretensioner,A,driver side
 1790,Belt pretensioner,Belt pretensioner,B,driver+pass sid
 1790,Belt pretensioner,Belt pretensioner,Z,without
+1793,Mudguard extensioner,Mudguard extensioner,A,With
+1793,Mudguard extensioner,Mudguard extensioner,Z,Without
 1794,Tot.rais.lower.,Tot rais.lower.,A,with
 1794,Tot.rais.lower.,Tot rais.lower.,Z,without
 1835,"Heat, park connection type","Heat, park connection type",A,UWE ek 100E
@@ -3126,11 +3578,25 @@
 1837,Type of order,Type of order,A,type program
 1837,Type of order,Type of order,P,prototype progr
 1837,Type of order,Type of order,R,rest. program
-1837,Type of order,Type of order,S,cust. special
 1837,Type of order,Type of order,RS,cust.sp+rest pg
+1837,Type of order,Type of order,S,cust. special
+1838,Identification lamp,Identification lamp,E,Prepared
+1838,Identification lamp,Identification lamp,C,White
+1838,Identification lamp,Identification lamp,D,White with switch
+1838,Identification lamp,Identification lamp,A,Amber
+1838,Identification lamp,Identification lamp,B,Amber with switch
+1838,Identification lamp,Identification lamp,Z,Without
+1839,Anchorage device,Anchorage device,A,With
+1839,Anchorage device,Anchorage device,Z,Without
+1854,Headlamp high located,Headlamp high located,B,prepared
+1854,Headlamp high located,Headlamp high located,Z,without
+1855,Bracket front mounted equip,Bracket front mounted equip,A,With
+1855,Bracket front mounted equip,Bracket front mounted equip,Z,Without
 1857,Fire-extinguishing equipment,Fire-extinguishing equipment,B,DAFO
 1857,Fire-extinguishing equipment,Fire-extinguishing equipment,C,Fogmaker
 1857,Fire-extinguishing equipment,Fire-extinguishing equipment,Z,without
+1870,Cab colour,Cab colour,TM,Blue RAL5012 Int84111
+1878,KD-unit assembly country,KD-unit assembly country,Z,Without
 1880,Exchange body vehicle,Exchange body vehicle,A,DIN 70014
 1880,Exchange body vehicle,Exchange body vehicle,Z,no
 1902,Frontview mirror,Frontview mirror,B,manual adjusted
@@ -3144,6 +3610,11 @@
 1911,Load transfer speed limitation,Load transfer speed limitation,E,unlimited
 1911,Load transfer speed limitation,Load transfer speed limitation,G,50 km/h
 1911,Load transfer speed limitation,Load transfer speed limitation,Z,without
+1930,Folding gear lever,Folding gear lever,A,With
+1930,Folding gear lever,Folding gear lever,Z,Without
+1950,Safety triangle,Safety triangle,A,one
+1950,Safety triangle,Safety triangle,B,two
+1950,Safety triangle,Safety triangle,Z,without
 1952,"JA dim, meter value","JA dim, meter value",A,1 m
 1952,"JA dim, meter value","JA dim, meter value",B,2 m
 1952,"JA dim, meter value","JA dim, meter value",C,3 m
@@ -3174,6 +3645,11 @@
 1954,"JA dim, cm","JA dim, cm",H,8 cm
 1954,"JA dim, cm","JA dim, cm",J,9 cm
 1954,"JA dim, cm","JA dim, cm",K,0 cm
+1962,ADR Gross Train Weight,ADR Gross Train Weight,A,YES
+1962,ADR Gross Train Weight,ADR Gross Train Weight,B,NO
+1964,Fuel filter chassis mounted,Fuel filter chassis mounted,A,with
+1964,Fuel filter chassis mounted,Fuel filter chassis mounted,F,Electrical preparation
+1964,Fuel filter chassis mounted,Fuel filter chassis mounted,Z,without
 1967,Exhaust silencer execution,Exhaust silencer execution,A,cube
 1967,Exhaust silencer execution,Exhaust silencer execution,B,short
 1967,Exhaust silencer execution,Exhaust silencer execution,C,vertical
@@ -3191,9 +3667,22 @@
 1988,"Axle weight middle, technical","Axle weight middle, technical",CT,12500 kg
 1988,"Axle weight middle, technical","Axle weight middle, technical",D,13000 kg
 1988,"Axle weight middle, technical","Axle weight middle, technical",Z,Without
+1989,Rear underrun beam regulation,Rear underrun beam regulation,Z,without
+1993,Propeller shaft protection strap,Propeller shaft protection strap,A,with
+1993,Propeller shaft protection strap,Propeller shaft protection strap,Z,without
+2002,Multiple colour concept,Multiple colour concept,C,Extended chassis paint
+2002,Multiple colour concept,Multiple colour concept,U,Unique design
+2002,Multiple colour concept,Multiple colour concept,Z,without
+2021,Head lamp protection,Head lamp protection,A,with
+2021,Head lamp protection,Head lamp protection,Z,without
 2028,Locking device internal,Locking device internal,A,pullock
 2028,Locking device internal,Locking device internal,B,square lock
 2028,Locking device internal,Locking device internal,Z,without
+2042,Rear wall storage,Rear wall storage,D,Open
+2042,Rear wall storage,Rear wall storage,B,Storage drawer
+2042,Rear wall storage,Rear wall storage,Z,Without
+2042,Rear wall storage,Rear wall storage,E,Refrigerator preparation
+2042,Rear wall storage,Rear wall storage,C,Refrigerator
 2101,Forced closing exit doors,Forced closing exit doors,A,Separate button
 2101,Forced closing exit doors,Forced closing exit doors,B,Included button
 2101,Forced closing exit doors,Forced closing exit doors,Z,Without
@@ -3216,8 +3705,16 @@
 2119,Monitoring voltage drop,Monitoring voltage drop,Z,Without
 2123,Refrigerant o.c,Refrigerant oil cooler gearbox,A,Air
 2123,Refrigerant o.c,Refrigerant oil cooler gearbox,B,Liquid
+2124,Exhaust silencer heat cover,Exhaust silencer heat cover,Z,without
+2124,Exhaust silencer heat cover,Exhaust silencer heat cover,A,Normal
+2124,Exhaust silencer heat cover,Exhaust silencer heat cover,B,Simplified
+2127,Manoeuvrability according to 97/27/EC,Manoeuvrability according to 97/27/EC,A,with
+2127,Manoeuvrability according to 97/27/EC,Manoeuvrability according to 97/27/EC,B,without
 2132,"TCM, Trailer Control Module","TCM, Trailer Control Module",A,with
 2132,"TCM, Trailer Control Module","TCM, Trailer Control Module",Z,without
+2153,Steering wheel type,Steering wheel type,A,basic
+2153,Steering wheel type,Steering wheel type,B,leather black
+2153,Steering wheel type,Steering wheel type,C,wood
 2154,Fuel tank,Fuel tank,A,LH side
 2154,Fuel tank,Fuel tank,B,RH side
 2154,Fuel tank,Fuel tank,C,both sides
@@ -3225,6 +3722,17 @@
 2157,Extra AC,Extra AC,A,with
 2157,Extra AC,Extra AC,B,without
 2157,Extra AC,Extra AC,Z,without
+2162,Protective mats floor,Protective mats floor,D,Textile sand
+2162,Protective mats floor,Protective mats floor,B,Textile grey
+2162,Protective mats floor,Protective mats floor,Z,Without
+2162,Protective mats floor,Protective mats floor,A,Rubber
+2169,Instrument panel passenger side,Instrument panel passenger side,D,With table and lid
+2169,Instrument panel passenger side,Instrument panel passenger side,B,With lid
+2169,Instrument panel passenger side,Instrument panel passenger side,A,Open
+2169,Instrument panel passenger side,Instrument panel passenger side,C,With table
+2172,Instrument panel finish,Instrument panel finish,A,Untreated
+2172,Instrument panel finish,Instrument panel finish,D,Soft
+2172,Instrument panel finish,Instrument panel finish,B,Treated
 2174,Ambient temperature display,Ambient temperature display,A,with
 2174,Ambient temperature display,Ambient temperature display,Z,without
 2176,Loudspeaker,Loudspeaker,A,entry
@@ -3239,14 +3747,40 @@
 2181,Wide angle mirror,Wide angle mirror,B,passenger side
 2181,Wide angle mirror,Wide angle mirror,C,driv+pass.side
 2181,Wide angle mirror,Wide angle mirror,Z,without
+2182,Close up mirror,Close up mirror,A,with
+2182,Close up mirror,Close up mirror,Z,without
+2187,Adjustable shock absorber driver,Adjustable shock absorber driver,A,with
+2187,Adjustable shock absorber driver,Adjustable shock absorber driver,Z,without
+2188,Adjustable shock absorber passenger,Adjustable shock absorber passenger,A,with
+2188,Adjustable shock absorber passenger,Adjustable shock absorber passenger,Z,without
+2189,Arm rest driver,Arm rest driver,A,with
+2189,Arm rest driver,Arm rest driver,Z,without
+2190,Arm rest passenger,Arm rest passenger,A,with
+2190,Arm rest passenger,Arm rest passenger,Z,without
+2191,Heating pad driver,Heating pad driver,A,with
+2191,Heating pad driver,Heating pad driver,Z,without
+2192,Heating pad passenger,Heating pad passenger,A,with
+2192,Heating pad passenger,Heating pad passenger,Z,without
+2195,Upholstery seat driver,Upholstery seat driver,F,vinyl
+2195,Upholstery seat driver,Upholstery seat driver,E,vinyl + knitted
+2195,Upholstery seat driver,Upholstery seat driver,D,leather black
+2195,Upholstery seat driver,Upholstery seat driver,J,woven
+2196,Upholstery seat passenger,Upholstery seat passenger,F,vinyl
+2196,Upholstery seat passenger,Upholstery seat passenger,E,vinyl + knitted
+2196,Upholstery seat passenger,Upholstery seat passenger,D,leather black
+2196,Upholstery seat passenger,Upholstery seat passenger,J,woven
 2200,Climate system control,Climate system control,A,manual
 2200,Climate system control,Climate system control,B,automatic
 2200,Climate system control,Climate system control,C,ventil. only
 2200,Climate system control,Climate system control,D,premium
+2209,Tool kit,Tool kit,A,with
+2209,Tool kit,Tool kit,B,simplified
 2250,Fan control,Fan control,A,electronic
 2250,Fan control,Fan control,B,mechanical
 2250,Fan control,Fan control,C,Hydraulic
 2250,Fan control,Fan control,Z,without
+2251,Operator´s manual language,Operator´s manual language,A,English
+2252,Operator´s man extra language,Operator´s man extra language,Z,without
 2253,Air intake,Air intake,A,"front, normal"
 2253,Air intake,Air intake,B,rear high
 2253,Air intake,Air intake,C,"front, winter"
@@ -3254,10 +3788,16 @@
 2253,Air intake,Air intake,E,front
 2285,Sensitive edge check,Sensitive edge check,B,"With, sep. but."
 2285,Sensitive edge check,Sensitive edge check,Z,Without
+2296,Ladder,Ladder,A,with
+2296,Ladder,Ladder,Z,without
 2297,FMS prep,FMS prep,A,with
 2297,FMS prep,FMS prep,B,Bus speci?c
 2297,FMS prep,FMS prep,C,bus extended
 2297,FMS prep,FMS prep,Z,without
+2299,Wall panel and headlining material,Wall panel and headlining material,D,Classic Textile
+2299,Wall panel and headlining material,Wall panel and headlining material,C,Classic Vinyl
+2299,Wall panel and headlining material,Wall panel and headlining material,B,Textile
+2299,Wall panel and headlining material,Wall panel and headlining material,A,Vinyl
 2301,Instrument cluster,Instrument cluster,A,basic km/h
 2301,Instrument cluster,Instrument cluster,B,"basic km/h,mph"
 2301,Instrument cluster,Instrument cluster,C,km/h trip comp.
@@ -3271,6 +3811,14 @@
 2301,Instrument cluster,Instrument cluster,L,C dis.+km/h mph
 2301,Instrument cluster,Instrument cluster,M,Displ. km/h VDV
 2301,Instrument cluster,Instrument cluster,N,Di km/h mph VDV
+2301,Instrument cluster,Instrument cluster,F,Basic km/h 
+2301,Instrument cluster,Instrument cluster,G,Basic km/h and mph
+2301,Instrument cluster,Instrument cluster,H, Colour km/h 
+2301,Instrument cluster,Instrument cluster,J,Colour km/h and mph 
+2301,Instrument cluster,Instrument cluster,K, Colour plus km/h
+2301,Instrument cluster,Instrument cluster,L,Colour plus km/h and mph
+2302,Air pressure display,Air pressure display,A,bar
+2302,Air pressure display,Air pressure display,B,psi
 2303,Tachograph,Tachograph,A,7d rec sheet
 2303,Tachograph,Tachograph,B,1d rec sheet
 2303,Tachograph,Tachograph,C,1d sh ADR SIM
@@ -3308,9 +3856,28 @@
 2304,Radio,Radio,G,with navigation
 2304,Radio,Radio,H,Medium without ctrl
 2304,Radio,Radio,Z,without
+2305,Mobile telephone preparation,Mobile telephone preparation,A,with
+2305,Mobile telephone preparation,Mobile telephone preparation,Z,without
+2306,12V socket in dashboard,12V socket in dashboard,A,with
+2306,12V socket in dashboard,12V socket in dashboard,Z,without
+2311,Interior lighting,Interior lighting ,A,basic
+2311,Interior lighting,Interior lighting ,C,basic w. backgr. lighting
+2311,Interior lighting,Interior lighting ,B,exclusive
+2311,Interior lighting,Interior lighting ,D,excl w. backgr. lighting
+2312,Boarding step lighting,Boarding step lighting,A,with
+2312,Boarding step lighting,Boarding step lighting,Z,without
 2313,Windscreen,Windscreen,A,tinted
 2313,Windscreen,Windscreen,B,untinted
 2313,Windscreen,Windscreen,C,tinted heated
+2315,Mirror type,Mirror type,A,with air deflector
+2315,Mirror type,Mirror type,B,without air deflector
+2316,Electric mirror adjustment,Electric mirror adjustment,Z,without
+2316,Electric mirror adjustment,Electric mirror adjustment,A,passenger side
+2316,Electric mirror adjustment,Electric mirror adjustment,B,pass+driver side
+2327,Type plate/frame year marking,Type plate/frame year marking,Z,No year
+2327,Type plate/frame year marking,Type plate/frame year marking,A,Manufacturing year
+2329,"Boarding step front, foldable","Boarding step front, foldable",A,with
+2329,"Boarding step front, foldable","Boarding step front, foldable",Z,without
 2330,Disengaging parking brake fr.,Disengaging parking brake fr.,A,with
 2330,Disengaging parking brake fr.,Disengaging parking brake fr.,Z,without
 2330,Disengaging parking brake fr.,Disengaging parking brake fr.,ZZ,not valid
@@ -3329,6 +3896,8 @@
 2345,C-lock + alarm,Central locking and alarm,F,re.lock 315MHz
 2345,C-lock + alarm,Central locking and alarm,G,re.alarm 315MHz
 2345,C-lock + alarm,Central locking and alarm,Z,without
+2347,Smoke detector,Smoke detector,A,with
+2347,Smoke detector,Smoke detector,Z,without
 2363,Particle trap(PMFC),Particle trap(PMFC),A,with (CRT)
 2363,Particle trap(PMFC),Particle trap(PMFC),B,with
 2363,Particle trap(PMFC),Particle trap(PMFC),Z,without
@@ -3338,12 +3907,27 @@
 2365,ECU automatic gearbox,ECU automatic gearbox,D,general vehicle
 2365,ECU automatic gearbox,ECU automatic gearbox,E,Transit bus
 2365,ECU automatic gearbox,ECU automatic gearbox,F,Intercity Coach
+2390,Mosquito net in roof,Mosquito net in roof,A,with
+2390,Mosquito net in roof,Mosquito net in roof,Z,without
+2404,Brake system according to ADR 35/01,Brake system according to ADR 35/01,B,NO
 2409,EGR System,EGR System,A,with
 2409,EGR System,EGR System,Z,without
+2410,Battery master switch manoeuvring,Battery master switch manoeuvring,A,Double acting in cab
+2410,Battery master switch manoeuvring,Battery master switch manoeuvring,F,Dbl act lh frame + dbl act cab
+2410,Battery master switch manoeuvring,Battery master switch manoeuvring,D,Double acting left side frame
+2410,Battery master switch manoeuvring,Battery master switch manoeuvring,Z,without
+2411,Cable harness for bodybuilder,Cable harness for bodybuilder,F,7+7+7
+2411,Cable harness for bodybuilder,Cable harness for bodybuilder,B,7 pole
+2411,Cable harness for bodybuilder,Cable harness for bodybuilder,E,7+7 pole
+2411,Cable harness for bodybuilder,Cable harness for bodybuilder,Z,without
 2412,Reverse alarm,Reverse alarm,A,with
 2412,Reverse alarm,Reverse alarm,B,with disabling
 2412,Reverse alarm,Reverse alarm,C,with reduced
 2412,Reverse alarm,Reverse alarm,Z,without
+2412,Reverse alarm,Reverse alarm,Z,with
+2412,Reverse alarm,Reverse alarm,A,without
+2412,Reverse alarm,Reverse alarm,B,with disabling
+2412,Reverse alarm,Reverse alarm,C,with reduced sound level
 2413,Fog Lamp Front,Fog Lamp Front,A,with
 2413,Fog Lamp Front,Fog Lamp Front,B,prepared
 2413,Fog Lamp Front,Fog Lamp Front,C,halogen
@@ -3359,6 +3943,8 @@
 2416,Headlamp cleaning,Headlamp cleaning,A,with
 2416,Headlamp cleaning,Headlamp cleaning,B,HCS
 2416,Headlamp cleaning,Headlamp cleaning,Z,without
+2417,Roof sign illumination light,Roof sign illumination light,A,with
+2417,Roof sign illumination light,Roof sign illumination light,Z,without
 2418,Speed limit second,Speed limit second,A,with
 2418,Speed limit second,Speed limit second,B,5 km/h
 2418,Speed limit second,Speed limit second,C,10 km/h
@@ -3383,6 +3969,8 @@
 2439,ESP,Electric stability programme,Z,without
 2440,Trailer brake switch,Trailer brake switch,A,with
 2440,Trailer brake switch,Trailer brake switch,Z,without
+2441,Plate according to 96/53/EC,Plate according to 96/53/EC,A,with
+2441,Plate according to 96/53/EC,Plate according to 96/53/EC,Z,without
 2452,Brake control,Brake control,A,pneumatic
 2452,Brake control,Brake control,B,electronic
 2458,Air Processing System,Air Processing System,B,air management
@@ -3420,6 +4008,8 @@
 2471,Emission level,Emission level,X,IMO Tier III
 2471,Emission level,Emission level,Y,Stage V
 2471,Emission level,Emission level,Z,without
+2472,Rear wall bin,Rear wall bin,A,with
+2472,Rear wall bin,Rear wall bin,Z,without
 2478,Axle load disp,Axle load display,A,Front and Rear
 2478,Axle load disp,Axle load display,B,Rear
 2478,Axle load disp,Axle load display,D,With
@@ -3458,6 +4048,9 @@
 2496,Blackout lighting,Blackout lighting,H,Delumination disenga. horn SLA
 2496,Blackout lighting,Blackout lighting,Z,without
 2496,Blackout lighting,Blackout lighting,ZZ,not valid
+2499,Bumper position,Bumper position,A,Low
+2499,Bumper position,Bumper position,,N/A
+2499,Bumper position,Bumper position,B,High
 2501,Preparation for wheel con?g,Preparation for wheel con?g,A,4x4+2
 2501,Preparation for wheel con?g,Preparation for wheel con?g,AA,8x6+2
 2501,Preparation for wheel con?g,Preparation for wheel con?g,B,6x2/4
@@ -3484,23 +4077,79 @@
 2519,Opticruise,Opticruise,A,with
 2519,Opticruise,Opticruise,Z,without
 2519,Opticruise,Opticruise,ZZ,not valid
+2520,Clear varnish,Clear varnish,A,with
+2520,Clear varnish,Clear varnish,Z,without
+2521,Cab suspension,Cab suspension,D,4-point mechanical sprung
+2521,Cab suspension,Cab suspension,C,4-point air sprung
 2522,Second step in the front,Second step in the front,A,with
 2522,Second step in the front,Second step in the front,Z,without
+2522,Second step in the front,Second step in the front,A,with
+2522,Second step in the front,Second step in the front,Z,without
+2529,Red coloured seat belts,Red coloured seat belts,Z,without
+2529,Red coloured seat belts,Red coloured seat belts,A,driver side 
+2529,Red coloured seat belts,Red coloured seat belts,B,driver+passenger side
 2530,External storage compartment,External storage compartment,A,driver side
 2530,External storage compartment,External storage compartment,B,passenger side
 2530,External storage compartment,External storage compartment,C,driv+pass side
 2530,External storage compartment,External storage compartment,Z,without
 2531,Battery position,Battery position,A,Front
 2531,Battery position,Battery position,B,Rear
+2533,Truck model,Truck model,P,P
+2533,Truck model,Truck model,R,R
+2533,Truck model,Truck model,G,G
+2533,Truck model,Truck model,T,T
+2533,Truck model,Truck model,S,S
+2534,Type of transport,Type of transport,C,Construction
+2535,Duty class,Duty class,H,H
+2535,Duty class,Duty class,E,E
+2535,Duty class,Duty class,M,M
 2537,Cab ?oor type,Cab ?oor type,A,?at (T cab)
 2537,Cab ?oor type,Cab ?oor type,B,semi-?at (R cab)
 2537,Cab ?oor type,Cab ?oor type,C,cross access
 2537,Cab ?oor type,Cab ?oor type,D,engine tunnel (P cab)
 2537,Cab ?oor type,Cab ?oor type,E,low engine tun.
 2537,Cab ?oor type,Cab ?oor type,ZZ,default
+2541,Gear lever knob material,Gear lever knob material,A,plastic
+2541,Gear lever knob material,Gear lever knob material,B,wood
+2541,Gear lever knob material,Gear lever knob material,C,leather
 2552,Oil sump material,Oil sump material,A,sheet metal
 2552,Oil sump material,Oil sump material,B,plastic
 2552,Oil sump material,Oil sump material,C,aluminium
+2567,Step body side,Step body side,A,with
+2567,Step body side,Step body side,Z,without
+2575,Body colour metallic,Body colour metallic,A,Blue Sapphire
+2575,Body colour metallic,Body colour metallic,AA,Red Ruby
+2575,Body colour metallic,Body colour metallic,AC,Silver Arctic
+2575,Body colour metallic,Body colour metallic,AF,White Diamond
+2575,Body colour metallic,Body colour metallic,Z,without
+2577,Door panel,Door panel,A,plastic
+2577,Door panel,Door panel,B,textile
+2579,Storage bins doors,Storage bins doors,A,with
+2579,Storage bins doors,Storage bins doors,Z,without
+2580,Window winder door,Window winder door,A,electrical driver+pass.side
+2580,Window winder door,Window winder door,B,electrical passenger.side
+2580,Window winder door,Window winder door,C,mechanical
+2583,Bumper protruding,Bumper protruding,A,with
+2583,Bumper protruding,Bumper protruding,Z,without
+2625,Chassis adaptation + wheel configuration,Chassis adaptation + wheel configuration,BE,B8X4
+2626,"Fuel tank, left hand side","Fuel tank, left hand side",CD,230C aluminium
+2626,"Fuel tank, left hand side","Fuel tank, left hand side",WR,400W aluminium
+2626,"Fuel tank, left hand side","Fuel tank, left hand side",GC,300G steel
+2626,"Fuel tank, left hand side","Fuel tank, left hand side",CA,330C aluminium
+2626,"Fuel tank, left hand side","Fuel tank, left hand side",WF,400W steel
+2626,"Fuel tank, left hand side","Fuel tank, left hand side",Z,Without
+2626,"Fuel tank, left hand side","Fuel tank, left hand side",CC,440C aluminium
+2626,"Fuel tank, left hand side","Fuel tank, left hand side",WK,600W aluminium
+2727,"Fuel tank, right hand side","Fuel tank, right hand side",CD,230C aluminium
+2727,"Fuel tank, right hand side","Fuel tank, right hand side",WR,400W aluminium
+2727,"Fuel tank, right hand side","Fuel tank, right hand side",GC,300G steel
+2727,"Fuel tank, right hand side","Fuel tank, right hand side",CA,330C aluminium
+2727,"Fuel tank, right hand side","Fuel tank, right hand side",WF,400W steel
+2727,"Fuel tank, right hand side","Fuel tank, right hand side",Z,Without
+2727,"Fuel tank, right hand side","Fuel tank, right hand side",CC,440C aluminium
+2727,"Fuel tank, right hand side","Fuel tank, right hand side",WK,600W aluminium
+2953,Cable harness preparation for Swiss heavy vehicle fee,Cable harness preparation for Swiss heavy vehicle fee,A,with
+2953,Cable harness preparation for Swiss heavy vehicle fee,Cable harness preparation for Swiss heavy vehicle fee,Z,without
 2956,Common manouvering all doors,Common manouvering all doors,A,Opening
 2956,Common manouvering all doors,Common manouvering all doors,B,Opening/closing
 2956,Common manouvering all doors,Common manouvering all doors,Z,Without
@@ -3508,6 +4157,8 @@
 2958,Illumination cntrl on paytable,Illumination cntrl on paytable,B,With other ill.
 2959,Load sensing,Load sensing,A,with
 2959,Load sensing,Load sensing,Z,without
+2963,Extended side air deflector,Extended side air deflector,A,with
+2963,Extended side air deflector,Extended side air deflector,Z,without
 2972,Load transfer acc. to EC 97/27,Load transfer acc. to EC 97/27,A,yes / With load transfer
 2972,Load transfer acc. to EC 97/27,Load transfer acc. to EC 97/27,B,no / Without load transfer
 2973,Suspension system front,Suspension system front,A,air
@@ -3521,6 +4172,12 @@
 2983,Headlamp type,Headlamp type,E,H7
 2983,Headlamp type,Headlamp type,F,LED
 2983,Headlamp type,Headlamp type,G,Projector
+2984,Cab socket 230V,Cab socket 230V,A,with
+2984,Cab socket 230V,Cab socket 230V,Z,without
+2984,Cab socket 230V,Cab socket 230V,A,with
+2984,Cab socket 230V,Cab socket 230V,Z,without
+2985,Electric engine heater,Electric engine heater,A,with
+2985,Electric engine heater,Electric engine heater,Z,without
 2986,"Front axle, type","Front axle, type",A,AM620
 2986,"Front axle, type","Front axle, type",AA,AM420S
 2986,"Front axle, type","Front axle, type",AB,AM420T
@@ -3611,6 +4268,10 @@
 2987,Rear axle gear ratio,Rear axle gear ratio,X,ADA1300P
 2987,Rear axle gear ratio,Rear axle gear ratio,XA,ADA1303P
 2987,Rear axle gear ratio,Rear axle gear ratio,XB,ADA1302P
+2991,Adjustable steering wheel,Adjustable steering wheel,A,with
+2991,Adjustable steering wheel,Adjustable steering wheel,Z,without
+2991,Adjustable steering wheel,Adjustable steering wheel,A,with
+2991,Adjustable steering wheel,Adjustable steering wheel,Z,without
 2999,Clutch overload warning,Clutch overload warning,A,With
 2999,Clutch overload warning,Clutch overload warning,B,with
 2999,Clutch overload warning,Clutch overload warning,Z,Without
@@ -3619,10 +4280,20 @@
 3022,Door opening entrance door,Door opening entrance door,A,inwards
 3022,Door opening entrance door,Door opening entrance door,B,outwards
 3022,Door opening entrance door,Door opening entrance door,C,sliding outward
+3023,Cable harness for bodybuilder frame,Cable harness for bodybuilder frame,C,12 m
+3023,Cable harness for bodybuilder frame,Cable harness for bodybuilder frame,A,2 m
+3023,Cable harness for bodybuilder frame,Cable harness for bodybuilder frame,D,8 m
+3023,Cable harness for bodybuilder frame,Cable harness for bodybuilder frame,Z,without
+3024,Cable harness for bodybuilder roof,Cable harness for bodybuilder roof,A,with
+3024,Cable harness for bodybuilder roof,Cable harness for bodybuilder roof,Z,without
+3025,Battery connection bodybuilder,Battery connection bodybuilder,A,with
+3025,Battery connection bodybuilder,Battery connection bodybuilder,Z,without
 3026,BWS electrics,BWS electrics,A,Electric prep
 3026,BWS electrics,BWS electrics,B,Taillift prep
 3026,BWS electrics,BWS electrics,C,PTO preparation
 3026,BWS electrics,BWS electrics,Z,without
+3032,Lower bed mattress,Lower bed mattress,A,with
+3032,Lower bed mattress,Lower bed mattress,Z,without
 3045,Emergency stop,Emergency stop,A,with
 3045,Emergency stop,Emergency stop,Z,without
 3046,Bus stop brake,Bus stop brake,A,With
@@ -3638,6 +4309,9 @@
 3088,Cruise control switches,Cruise control switches,A,Steering wheel
 3088,Cruise control switches,Cruise control switches,B,Dashboard
 3088,Cruise control switches,Cruise control switches,Z,Without
+3092,"Gross train weight, technical","Gross train weight, technical",CJ,45001-46000 kg
+3092,"Gross train weight, technical","Gross train weight, technical",CL,45001-46000 kg
+3092,"Gross train weight, technical","Gross train weight, technical",EF,85001-86000 kg
 3093,Air tank front,"Air tank volume, front",A,2x20L
 3093,Air tank front,"Air tank volume, front",B,28.8L
 3093,Air tank front,"Air tank volume, front",C,2x28.8L
@@ -3702,7 +4376,6 @@
 3123,ACC,Automatic climate control system,A,ACC1
 3123,ACC,Automatic climate control system,Z,Without
 3124,Automatic climate control system,Automatic climate control system environment,A,1
-,environment,,,
 3124,Automatic climate control system environment,Automatic climate control system environment,B,2
 3124,Automatic climate control system environment,Automatic climate control system environment,C,3
 3124,Automatic climate control system environment,Automatic climate control system environment,D,4
@@ -4591,6 +5264,10 @@
 3226,Air susp rear,Air suspension rear type,B,4-spring
 3226,Air susp rear,Air suspension rear type,C,4+2-spring
 3226,Air susp rear,Air suspension rear type,ZZ,not valid
+3239,Max truck height,Max truck height,A,4 meters 96/53/EG
+3239,Max truck height,Max truck height,B,No
+3244,Grille colour,Grille colour,A,cab colour
+3244,Grille colour,Grille colour,C,silver brilliant
 3245,Climate system driver,Climate system driver,A,separate EL-AC
 3245,Climate system driver,Climate system driver,B,combined AC
 3245,Climate system driver,Climate system driver,C,only defroster
@@ -4768,6 +5445,7 @@
 3266,Engine output (kW),Engine output (kW),H,438/487
 3266,Engine output (kW),Engine output (kW),HA,480/487
 3266,Engine output (kW),Engine output (kW),HB,438/483
+3266,Engine output (kW),Engine output (kW),HB,383
 3266,Engine output (kW),Engine output (kW),HC,480/483
 3266,Engine output (kW),Engine output (kW),HD,226/251
 3266,Engine output (kW),Engine output (kW),HE,248/273
@@ -4785,7 +5463,6 @@
 3266,Engine output (kW),Engine output (kW),HS,283
 3266,Engine output (kW),Engine output (kW),HT,426/426
 3266,Engine output (kW),Engine output (kW),HU,215/232
-3266,Engine output (kW),Engine output (kW),HB,383
 3266,Engine output (kW),Engine output (kW),HX,264/205
 3266,Engine output (kW),Engine output (kW),HY,264/215
 3266,Engine output (kW),Engine output (kW),HZ,283/261
@@ -4815,8 +5492,12 @@
 3285,Tag axle prep,Tag axle preperation,Z,without
 3300,Automatic hill hold,Automatic hill hold,A,with
 3300,Automatic hill hold,Automatic hill hold,Z,without
+3312,Cable harness for taillift,Cable harness for taillift,B,Cab
+3312,Cable harness for taillift,Cable harness for taillift,Z,Without
 3313,Remote contr engine start,Remote contr engine start,B,prepared
 3313,Remote contr engine start,Remote contr engine start,Z,without
+3314,Cable harness additional switches,Cable harness additional switches,A,with
+3314,Cable harness additional switches,Cable harness additional switches,Z,without
 3319,BWS,BWS,A,with
 3319,BWS,BWS,Z,without
 3332,Gear shift prog ZF aut,Gear shift prog ZF aut,A,S-ECO
@@ -5027,6 +5708,10 @@
 3393,Drivermanoeuvre mid/rear door,Drivermanoeuvre mid/rear door,B,1+1 mi and beh.art.
 3393,Drivermanoeuvre mid/rear door,Drivermanoeuvre mid/rear door,C,One sw. exit do
 3393,Drivermanoeuvre mid/rear door,Drivermanoeuvre mid/rear door,Z,without
+3412,"Body attachment bracket, frame end","Body attachment bracket, frame end",A,Holes only Type A
+3412,"Body attachment bracket, frame end","Body attachment bracket, frame end",G,Rigid welded Type G
+3412,"Body attachment bracket, frame end","Body attachment bracket, frame end",F,Rigid bolted Type F
+3412,"Body attachment bracket, frame end","Body attachment bracket, frame end",Z,without
 3431,BCS,BCS,A,BCS 1
 3431,BCS,BCS,Z,without
 3431,BCS,BCS,ZZ,not valid
@@ -5090,11 +5775,20 @@
 3485,Hill hold,Hill hold,Z,without
 3488,Selective Catalytic Reduction,Selective Catalytic Reduction,A,with
 3488,Selective Catalytic Reduction,Selective Catalytic Reduction,Z,without
+3497,EG-power take off,EG-power take off,A,with
+3497,EG-power take off,EG-power take off,Z,without
 3498,EK-power take o?,EK-power take o?,A,with
 3498,EK-power take o?,EK-power take o?,Z,without
 3500,CAN controlled starter motor,CAN controlled starter motor,A,with
 3500,CAN controlled starter motor,CAN controlled starter motor,Z,without
 3500,CAN controlled starter motor,CAN controlled starter motor,ZZ,not valid
+3501,Preparation for toll collect,Preparation for toll collect,A,with
+3501,Preparation for toll collect,Preparation for toll collect,Z,without
+3501,Preparation for toll collect,Preparation for toll collect,A,with
+3501,Preparation for toll collect,Preparation for toll collect,Z,without
+3502,PTO-EG electrical preparation,PTO-EG electrical preparation,C,1 connection
+3502,PTO-EG electrical preparation,PTO-EG electrical preparation,D,2 connections
+3502,PTO-EG electrical preparation,PTO-EG electrical preparation,Z,without
 3507,Emergency hammer,Emergency hammer,A,with wire
 3507,Emergency hammer,Emergency hammer,B,without wire
 3507,Emergency hammer,Emergency hammer,C,wired alarmed
@@ -5231,14 +5925,14 @@
 3508,Gearbox max input torque/ratio,Gearbox max input torque/ratio,SJ,6AP1402B N01
 3508,Gearbox max input torque/ratio,Gearbox max input torque/ratio,SK,6AP1702B N01
 3508,Gearbox max input torque/ratio,Gearbox max input torque/ratio,SL,GRSO935/R L01
+3508,Gearbox max input torque/ratio,Gearbox max input torque/ratio,VW,6AP1420B
+3508,Gearbox max input torque/ratio,Gearbox max input torque/ratio,VY,6AP1220B
+3508,Gearbox max input torque/ratio,Gearbox max input torque/ratio,VZ,6AP1620B
 3508,Gearbox max input torque/ratio,Gearbox max input torque/ratio,WA,G33CM1 L01
 3508,Gearbox max input torque/ratio,Gearbox max input torque/ratio,WB,G25CM1 L01
 3508,Gearbox max input torque/ratio,Gearbox max input torque/ratio,WC,G38CM1 L01
 3508,Gearbox max input torque/ratio,Gearbox max input torque/ratio,WE,G25CH1 L01
 3508,Gearbox max input torque/ratio,Gearbox max input torque/ratio,WF,G38CH1 L01
-3508,Gearbox max input torque/ratio,Gearbox max input torque/ratio,VW,6AP1420B
-3508,Gearbox max input torque/ratio,Gearbox max input torque/ratio,VY,6AP1220B
-3508,Gearbox max input torque/ratio,Gearbox max input torque/ratio,VZ,6AP1620B
 3508,Gearbox max input torque/ratio,Gearbox max input torque/ratio,XA,6AP2020B
 3508,Gearbox max input torque/ratio,Gearbox max input torque/ratio,XB,6AP1400BS
 3508,Gearbox max input torque/ratio,Gearbox max input torque/ratio,XC,6AP1600BS
@@ -5265,6 +5959,8 @@
 3545,PTO split shaft el. prep.,PTO split shaft el. prep.,Z,without
 3549,TPM,Tyre pressure monitoring,A,with
 3549,TPM,Tyre pressure monitoring,Z,without
+3554,Fan blade quantity,Fan blade quantity,A,11
+3554,Fan blade quantity,Fan blade quantity,B,8
 3561,Luggage compartment front,Luggage compartment front,A,with
 3561,Luggage compartment front,Luggage compartment front,Z,without
 3569,Variable volt,Variable set point voltage,A,PWM 0.05
@@ -5296,13 +5992,21 @@
 3581,Compressor extra,Compressor extra,Z,without
 3583,Adaptive Cruise control,Adaptive Cruise control,A,with
 3583,Adaptive Cruise control,Adaptive Cruise control,Z,without
+3584,Emergency hammer,Emergency hammer,A,with
+3584,Emergency hammer,Emergency hammer,Z,without
 3590,Defr fan rpm,Defr fan rpm,A,ACC controlled
 3590,Defr fan rpm,Defr fan rpm,B,max
+3590,Defrosting fan rpm,Defrosting fan rpm,B,max
+3590,Defrosting fan rpm,Defrosting fan rpm,A,ACC controlle
 3601,Scania LDW,Scania Lane departure warning,A,with
 3601,Scania LDW,Scania Lane departure warning,Z,without
+3608,Extended rust protection,Extended rust protection,A,with
+3608,Extended rust protection,Extended rust protection,Z,without
 3613,Bus directive,Bus directive,A,Class I
 3613,Bus directive,Bus directive,B,Class II
 3613,Bus directive,Bus directive,C,Class III
+3616,Charge air cooler curtain,Charge air cooler curtain,A,with
+3616,Charge air cooler curtain,Charge air cooler curtain,Z,without
 3617,Gear shift ctrl electronic,Gear shift ctrl electronic,A,Opticruse
 3617,Gear shift ctrl electronic,Gear shift ctrl electronic,B,Comfort shift
 3617,Gear shift ctrl electronic,Gear shift ctrl electronic,Z,Without
@@ -5373,14 +6077,21 @@
 3649,HVAC system,HVAC system configuration,D,B-sample NCG G4
 3649,HVAC system,HVAC system configuration,E,generation 5
 3649,HVAC system,HVAC system configuration,ZZ,not valid
+3650,Cab insulation kit,Cab insulation kit,Z,without
+3650,Cab insulation kit,Cab insulation kit,A,with
+3650,Cab insulation kit,Cab insulation kit,Z,without
 3652,LDW,Lane departure warning,A,LDW1
 3652,LDW,Lane departure warning,Z,without
 3653,LDW environment,LDW environment,A,1
+3655,Climatizer,Climatizer,A,preparation
+3655,Climatizer,Climatizer,Z,without
 3657,HVAC ov.? valv,HVAC over ?ow valve,A,with type 1
 3657,HVAC ov.? valv,HVAC over ?ow valve,Z,without
 3659,DAS system,Driver assistance system,A,DAS1
 3659,DAS system,Driver assistance system,B,DAS2
 3659,DAS system,Driver assistance system,Z,without
+3661,Alarm bodybuilder,Alarm bodybuilder,B,Prepared
+3661,Alarm bodybuilder,Alarm bodybuilder,Z,without
 3663,SMA,Suspension management auxiliary system,A,ELC3
 3663,SMA,Suspension management auxiliary system,Z,without
 3663,SMA,Suspension management auxiliary system,ZZ,not valid
@@ -5425,10 +6136,24 @@
 3684,Info switch,Info switch,A,steering wheel
 3684,Info switch,Info switch,B,instr. panel
 3684,Info switch,Info switch,Z,without
+3686,Bed safety net,Bed safety net,A,with
+3686,Bed safety net,Bed safety net,Z,without
+3687,Sticker vehicle towing,Sticker vehicle towing,M,Italian language
+3687,Sticker vehicle towing,Sticker vehicle towing,C,German language
+3687,Sticker vehicle towing,Sticker vehicle towing,Z,Without
+3688,Sticker wheel nut retight,Sticker wheel nut retight,M,Italian language
+3688,Sticker wheel nut retight,Sticker wheel nut retight,C,German language
+3688,Sticker wheel nut retight,Sticker wheel nut retight,Z,Without
+3689,Sticker attention battery box,Sticker attention battery box,M,Italian language
+3689,Sticker attention battery box,Sticker attention battery box,Z,without
+3690,Cab anti-roll bar,Cab anti-roll bar,A,Comfort
+3690,Cab anti-roll bar,Cab anti-roll bar,B,Heavy duty
 3691,Chassis front end width,Chassis front end width,A,1020 mm
 3691,Chassis front end width,Chassis front end width,B,1140 mm
 3692,Acceleration control,Acceleration control,A,with
 3692,Acceleration control,Acceleration control,Z,without
+3693,Alco lock,Alco lock,A,with
+3693,Alco lock,Alco lock,Z,without
 3702,Fuel quality engine test,Fuel quality engine test,A,diesel MK1
 3702,Fuel quality engine test,Fuel quality engine test,B,diesel MK3
 3702,Fuel quality engine test,Fuel quality engine test,ZZ,not valid
@@ -5495,28 +6220,30 @@
 3709,TPM 3rd axle,TPM 3rd axle ref pressure,I,6.0 Bar
 3709,TPM 3rd axle,TPM 3rd axle ref pressure,Z,Not applicable
 3710,TPM 4th axle,TPM 4th axle ref. pressure,A,7.0 Bar
-3710,TPM 4th axle,TPM 4th axle ref. pressure,B,7.5 Bar
-3710,TPM 4th axle,TPM 4th axle ref. pressure,C,8.0 Bar
-3710,TPM 4th axle,TPM 4th axle ref. pressure,D,8.5 Bar
-3710,TPM 4th axle,TPM 4th axle ref. pressure,E,9.0 Bar
-3710,TPM 4th axle,TPM 4th axle ref. pressure,F,9.5 Bar
-3710,TPM 4th axle,TPM 4th axle ref. pressure,G,10.0 Bar
-3710,TPM 4th axle,TPM 4th axle ref. pressure,H,6.5 Bar
-3710,TPM 4th axle,TPM 4th axle ref. pressure,I,6.0 Bar
-3710,TPM 4th axle,TPM 4th axle ref. pressure,Z,Not applicable
 3710,TPM 4th axle,TPM 4th axle,A,7.0 Bar
+3710,TPM 4th axle,TPM 4th axle ref. pressure,B,7.5 Bar
 3710,TPM 4th axle,TPM 4th axle,B,7.5 Bar
+3710,TPM 4th axle,TPM 4th axle ref. pressure,C,8.0 Bar
 3710,TPM 4th axle,TPM 4th axle,C,8.0 Bar
+3710,TPM 4th axle,TPM 4th axle ref. pressure,D,8.5 Bar
 3710,TPM 4th axle,TPM 4th axle,D,8.5 Bar
+3710,TPM 4th axle,TPM 4th axle ref. pressure,E,9.0 Bar
 3710,TPM 4th axle,TPM 4th axle,E,9.0 Bar
+3710,TPM 4th axle,TPM 4th axle ref. pressure,F,9.5 Bar
 3710,TPM 4th axle,TPM 4th axle,F,9.5 Bar
+3710,TPM 4th axle,TPM 4th axle ref. pressure,G,10.0 Bar
 3710,TPM 4th axle,TPM 4th axle,G,10.0 Bar
+3710,TPM 4th axle,TPM 4th axle ref. pressure,H,6.5 Bar
 3710,TPM 4th axle,TPM 4th axle,H,6.5 Bar
+3710,TPM 4th axle,TPM 4th axle ref. pressure,I,6.0 Bar
 3710,TPM 4th axle,TPM 4th axle,I,6.0 Bar
+3710,TPM 4th axle,TPM 4th axle ref. pressure,Z,Not applicable
 3710,TPM 4th axle,TPM 4th axle,Z,Not applicable
 3711,Ecocruise Generation,Ecocruise,A,1
 3711,Ecocruise Generation,Ecocruise,B,2
 3711,Ecocruise Generation,Ecocruise,ZZ,not valid
+3712,Front grille locking device,Front grille locking device,A,with
+3712,Front grille locking device,Front grille locking device,Z,without
 3713,Kick down sign.,Kick down signal,A,with
 3713,Kick down sign.,Kick down signal,Z,without
 3715,TPM envrionment,TPM environment,A,1
@@ -5552,6 +6279,7 @@
 3721,Ecocruise,Ecocruise,ZZ,not valid
 3731,Reading lamp,Reading lamp,A,with
 3731,Reading lamp,Reading lamp,Z,without
+3748,Tyres,Tyres,A,With
 3751,APS pressure level,APS pressure level,A,10 bar
 3751,APS pressure level,APS pressure level,B,11 bar
 3751,APS pressure level,APS pressure level,C,9 bar
@@ -5575,26 +6303,36 @@
 3754,SpeedLimit EOL,SpeedLimit EOL,T,"101,01"
 3754,SpeedLimit EOL,SpeedLimit EOL,V,"99,01"
 3754,SpeedLimit EOL,SpeedLimit EOL,Z,150
+3758,Reading lamp lower bed,Reading lamp lower bed,A,with
+3758,Reading lamp lower bed,Reading lamp lower bed,Z,without
 3759,0.8 bar Parking brake location,0.8 bar Parking brake location,A,BCS
 3759,0.8 bar Parking brake location,0.8 bar Parking brake location,B,COO
 3759,0.8 bar Parking brake location,0.8 bar Parking brake location,C,BWS
 3759,0.8 bar Parking brake location,0.8 bar Parking brake location,D,BWE
 3759,0.8 bar Parking brake location,0.8 bar Parking brake location,Z,without
+3765,Auxiliary positive supply,Auxiliary positive supply,Z,without
+3765,Auxiliary positive supply,Auxiliary positive supply,A,60A
+3768,Transport application,Transport application,P,"Vehicle transport, haulage"
+3768,Transport application,Transport application,D,"Tanker, distribution"
+3769,GTW actual,GTW actual,G,46-50 tons
 3778,OPC shift brake,OPC shift brake,A,with
 3778,OPC shift brake,OPC shift brake,Z,without
 3782,EGR cooling,EGR cooling,A,2-step / air and liquid
 3782,EGR cooling,EGR cooling,B,1-step / liquid
 3782,Refrigerant EGR cooler,Refrigerant EGR cooler,ZZ,not valid
+3784,Body adaptation,Body adaptation,C,Tipper preparation
+3784,Body adaptation,Body adaptation,B,Tipper complete
+3784,Body adaptation,Body adaptation,Z,without
 3786,Mutebox,Mutebox,A,with
 3786,Mutebox,Mutebox,Z,without
 3788,ACS Gateway,ACS Gateway,A,Version 1
 3788,ACS Gateway,ACS Gateway,Z,without
 3799,Power shift program / Power mode gearbox,Power shift program / Power mode gearbox,A,with
 3799,Power shift program / Power mode gearbox,Power shift program / Power mode gearbox,Z,without
-3808,Communicator,Communicator,C,C300 complete
-3808,Communicator,Communicator,D,C300 complete
 3808,Communicator,Communicator,A,C200 complete
 3808,Communicator,Communicator,B,C200 prepared
+3808,Communicator,Communicator,C,C300 complete
+3808,Communicator,Communicator,D,C300 complete
 3808,Communicator,Communicator,Z,without
 3811,Cruise Control Protocol,Cruise Control Protocol,AA,Button interfac
 3811,Cruise Control Protocol,Cruise Control Protocol,AB,VSR interface
@@ -5620,6 +6358,35 @@
 3824,Reduced light when engine o?,Reduced light when engine o?,Z,without
 3825,Auto open/close mi door WCR,Auto open/close mi door WCR,A,with
 3825,Auto open/close mi door WCR,Auto open/close mi door WCR,Z,without
+3829,Oil level indication,Oil level indication,Z,without
+3837,Bed lower overall width,Bed lower overall width,A,"800mm, fixed"
+3837,Bed lower overall width,Bed lower overall width,B,700-900mm
+3838,Bed upper,Bed upper,A,with
+3838,Bed upper,Bed upper,Z,without
+3840,Coffee maker,Coffee maker,A,with
+3840,Coffee maker,Coffee maker,Z,without
+3845,Storage side panel,Storage side panel,B,Right hand side
+3845,Storage side panel,Storage side panel,Z,Without
+3845,Storage side panel,Storage side panel,C,Left and right hand side
+3845,Storage side panel,Storage side panel,A,Left hand side
+3847,Instr panel decorative strip,Instr panel decorative strip,B,wood
+3847,Instr panel decorative strip,Instr panel decorative strip,D,dark chrome
+3847,Instr panel decorative strip,Instr panel decorative strip,C,dark grey
+3847,Instr panel decorative strip,Instr panel decorative strip,Z,without
+3848,Instrument panel colour,Instrument panel colour,B,brown/grey
+3848,Instrument panel colour,Instrument panel colour,C,black/grey
+3849,Underskirt instr panel colour,Underskirt instr panel colour,A,grey
+3849,Underskirt instr panel colour,Underskirt instr panel colour,B,sand
+3852,PTO EG side,PTO EG side,AG,EG503P
+3852,PTO EG side,PTO EG side,AH,EG503F
+3852,PTO EG side,PTO EG side,CB,EG210F
+3852,PTO EG side,PTO EG side,AF,EG502F
+3852,PTO EG side,PTO EG side,AE,EG502P
+3852,PTO EG side,PTO EG side,AA,EG500P
+3852,PTO EG side,PTO EG side,AB,EG500F
+3852,PTO EG side,PTO EG side,Z,Without
+3852,PTO EG side,PTO EG side,AD,EG501F
+3852,PTO EG side,PTO EG side,AC,EG501P
 3853,PTO EG rear,PTO EG rear,AA,EG640F
 3853,PTO EG rear,PTO EG rear,AB,EG640P
 3853,PTO EG rear,PTO EG rear,AC,EG641F
@@ -5647,6 +6414,11 @@
 3853,PTO EG rear,PTO EG rear,CE,EG643F
 3853,PTO EG rear,PTO EG rear,CF,EG643P
 3853,PTO EG rear,PTO EG rear,Z,without
+3854,PTO EG number of connections,PTO EG number of connections,A,1
+3854,PTO EG number of connections,PTO EG number of connections,B,2
+3854,PTO EG number of connections,PTO EG number of connections,Z,Without
+3855,Bluetooth,Bluetooth,A,with
+3855,Bluetooth,Bluetooth,Z,without
 3869,Neutral position sensor,Neutral position sensor,A,Conneded to COO
 3869,Neutral position sensor,Neutral position sensor,B,Conneded to GMS
 3869,Neutral position sensor,Neutral position sensor,Z,Without
@@ -5683,6 +6455,8 @@
 3888,Bodywork info in ICL,Bodywork info in ICL,A,with
 3888,Bodywork info in ICL,Bodywork info in ICL,Z,without
 3888,Bodywork info in ICL,Bodywork info in ICL,ZZ,not valid
+3888,Bodywork info in ICL,Bodywork info in ICL,A,with
+3888,Bodywork info in ICL,Bodywork info in ICL,Z,without
 3889,Frequency remote lock,Frequency remote lock,A,433 MHz
 3889,Frequency remote lock,Frequency remote lock,B,426 MHz
 3889,Frequency remote lock,Frequency remote lock,ZZ,not valid
@@ -5725,8 +6499,14 @@
 3914,Tachograph,Tachograph,Z,without
 3916,Speed sign ampI,Speed signal ampli?er,A,with
 3916,Speed sign ampI,Speed signal ampli?er,Z,without
+3917,Crankcase ventilation antifreeze,Crankcase ventilation antifreeze,Z,Without
+3917,Crankcase ventilation antifreeze,Crankcase ventilation antifreeze,A,with
+3920,Bed carrier material,Bed carrier material,A,Plastic
+3920,Bed carrier material,Bed carrier material,B,wood
 3924,Engine stop request,Engine stop request,A,With
 3924,Engine stop request,Engine stop request,Z,Without
+3925,Coolant freeze point,Coolant freeze point,B,Freezing point -40 degrees
+3925,Coolant freeze point,Coolant freeze point,A,Freezing point -25 degrees C
 3928,Interactive driver training,Interactive driver training,A,with
 3928,Interactive driver training,Interactive driver training,B,gen 2
 3928,Interactive driver training,Interactive driver training,C,gen 2.1
@@ -5738,9 +6518,14 @@
 3938,Collision warning,Collision warning,Z,without
 3939,Guiding light parked vehicle,Guiding light parked vehicle,A,with
 3939,Guiding light parked vehicle,Guiding light parked vehicle,Z,without
+3948,Sunvisor door driver side,Sunvisor door driver side,B,Blind
+3948,Sunvisor door driver side,Sunvisor door driver side,Z,Without
+3948,Sunvisor door driver side,Sunvisor door driver side,A,Foldable
 3949,Fan hub solenoid frequency,Fan hub solenoid frequency,A,20Hz
 3949,Fan hub solenoid frequency,Fan hub solenoid frequency,B,1-3Hz
 3949,Fan hub solenoid frequency,Fan hub solenoid frequency,ZZ,not valid
+3955,Driver identification,Driver identification,B,prepared
+3955,Driver identification,Driver identification,Z,without
 3956,Tachograph data upload,Tachograph data upload,A,with
 3956,Tachograph data upload,Tachograph data upload,Z,without
 3957,LDW signal type,LDW signal type,A,audio
@@ -5748,10 +6533,20 @@
 3961,Remote vehicle immobiliser,Remote vehicle immobiliser,A,With
 3961,Remote vehicle immobiliser,Remote vehicle immobiliser,B,Prepared
 3961,Remote vehicle immobiliser,Remote vehicle immobiliser,Z,Without
+3966,Tail lift,Tail lift,Z,Without
+3968,Roof air deflector height,Roof air deflector height,A,7 cm
+3968,Roof air deflector height,Roof air deflector height,B,27 cm
+3968,Roof air deflector height,Roof air deflector height,Z,without
+3969,Side air deflector length,Side air deflector length,A,13 cm
+3969,Side air deflector length,Side air deflector length,B,43 cm
+3969,Side air deflector length,Side air deflector length,C,51 cm
+3969,Side air deflector length,Side air deflector length,Z,without
 3970,Difrerential lock control,Difrerential lock control,A,rotary ctrl 1
 3970,Difrerential lock control,Difrerential lock control,B,button
 3970,Difrerential lock control,Difrerential lock control,C,rotary control
 3970,Difrerential lock control,Difrerential lock control,ZZ,not valid
+3974,Fuel splash protection,Fuel splash protection,A,with
+3974,Fuel splash protection,Fuel splash protection,Z,without
 3979,Battery position,Battery position,A,LHS
 3979,Battery position,Battery position,B,RHS
 3979,Battery position,Battery position,C,rear frame end
@@ -5799,6 +6594,8 @@
 4019,FMS preparation,FMS preparation,Z,without
 4021,Sign box o? delay,Sign box o? delay,A,for 15min
 4021,Sign box o? delay,Sign box o? delay,Z,without
+4022,Delivery degree,Delivery degree,C,"SKD, Semi Knocked Down"
+4022,Delivery degree,Delivery degree,A,"CBU, Completely Build Up"
 4029,Lev adj remote ctrl body build,Lev adj remote ctrl body build,A,truck
 4029,Lev adj remote ctrl body build,Lev adj remote ctrl body build,B,truck+trailer
 4029,Lev adj remote ctrl body build,Lev adj remote ctrl body build,Z,without
@@ -6403,10 +7200,10 @@
 5737,Bogie distance rear axle 1-2,Bogie distance rear axle 1-2,C,1300 mm
 5737,Bogie distance rear axle 1-2,Bogie distance rear axle 1-2,D,1315 mm
 5737,Bogie distance rear axle 1-2,Bogie distance rear axle 1-2,E,1350 mm
+5737,Bogie distance rear axle 1-2,Bogie distance rear axle 1-2,ED,1355 mm
 5737,Bogie distance rear axle 1-2,Bogie distance rear axle 1-2,F,1445 mm
 5737,Bogie distance rear axle 1-2,Bogie distance rear axle 1-2,G,1450 mm
 5737,Bogie distance rear axle 1-2,Bogie distance rear axle 1-2,H,1500 mm
-5737,Bogie distance rear axle 1-2,Bogie distance rear axle 1-2,ED,1355 mm
 5738,Bogie distance rear axle 2-3,Bogie distance rear axle 2-3,A,1300 mm
 5738,Bogie distance rear axle 2-3,Bogie distance rear axle 2-3,B,1350 mm
 5738,Bogie distance rear axle 2-3,Bogie distance rear axle 2-3,C,1450 mm
@@ -6438,28 +7235,28 @@
 5822,Low axle weight warn fr axle,Low axle weight warn fr axle,A,with
 5822,Low axle weight warn fr axle,Low axle weight warn fr axle,Z,without
 5825,Door opening behind front axle,Door opening behind front axle,A,inwards
-5825,Door opening behind front axle,Door opening behind front axle,B,outwards
-5825,Door opening behind front axle,Door opening behind front axle,C,sliding outward
-5825,Door opening behind front axle,Door opening behind front axle,ZZ,not valid
 5825,Door opening behind front axle,Door opening behind front axle,A,inwards
 5825,Door opening behind front axle,Door opening behind front axle,B,outwards
+5825,Door opening behind front axle,Door opening behind front axle,B,outwards
+5825,Door opening behind front axle,Door opening behind front axle,C,sliding outward
 5825,Door opening behind front axle,Door opening behind front axle,C,sliding outward
 5825,Door opening behind front axle,Door opening behind front axle,ZZ,not valid
+5825,Door opening behind front axle,Door opening behind front axle,ZZ,not valid
+5826,Door opening behind middle axl,Door opening behind middle axl,A,inwards
 5826,Door opening behind middle axl,Door opening behind middle axl,A,inwards
 5826,Door opening behind middle axl,Door opening behind middle axl,B,outwards
+5826,Door opening behind middle axl,Door opening behind middle axl,B,outwards
+5826,Door opening behind middle axl,Door opening behind middle axl,C,sliding outward
 5826,Door opening behind middle axl,Door opening behind middle axl,C,sliding outward
 5826,Door opening behind middle axl,Door opening behind middle axl,ZZ,not valid
-5826,Door opening behind middle axl,Door opening behind middle axl,A,inwards
-5826,Door opening behind middle axl,Door opening behind middle axl,B,outwards
-5826,Door opening behind middle axl,Door opening behind middle axl,C,sliding outward
 5826,Door opening behind middle axl,Door opening behind middle axl,ZZ,not valid
 5827,Door opening behind rear axle,Door opening behind rear axle,A,inwards
+5827,Door opening behind rear axle,Door opening behind rear axle,A,inwards
 5827,Door opening behind rear axle,Door opening behind rear axle,B,outwards
+5827,Door opening behind rear axle,Door opening behind rear axle,B,outwards
+5827,Door opening behind rear axle,Door opening behind rear axle,C,sliding outward
 5827,Door opening behind rear axle,Door opening behind rear axle,C,sliding outward
 5827,Door opening behind rear axle,Door opening behind rear axle,ZZ,not valid
-5827,Door opening behind rear axle,Door opening behind rear axle,A,inwards
-5827,Door opening behind rear axle,Door opening behind rear axle,B,outwards
-5827,Door opening behind rear axle,Door opening behind rear axle,C,sliding outward
 5827,Door opening behind rear axle,Door opening behind rear axle,ZZ,not valid
 5831,Road data registration,Road data registration,A,rd data dev st
 5831,Road data registration,Road data registration,B,dev storage+use
@@ -7813,18 +8610,18 @@
 8527,Door sensing strip alarm,Door sensing strip alarm,Z,without
 8528,Emergency opening front door,Emergency opening front door,A,door leafs separate
 8528,Emergency opening front door,Emergency opening front door,B,whole door
-8528,Emergency opening front door,Emergency opening front door,C,prepared door leafs separate
 8528,Emergency opening front door,Emergency opening front door,B,whole door
+8528,Emergency opening front door,Emergency opening front door,C,prepared door leafs separate
 8528,Emergency opening front door,Emergency opening front door,C,prepared door leafs separate
 8529,Ext emergency open fr d diseng,Ext emergency open fr d diseng,A,with
 8529,Ext emergency open fr d diseng,Ext emergency open fr d diseng,B,prepared
-8529,Ext emergency open fr d diseng,Ext emergency open fr d diseng,Z,without
 8529,Ext emergency open fr d diseng,Ext emergency open fr d diseng,B,prepared
+8529,Ext emergency open fr d diseng,Ext emergency open fr d diseng,Z,without
 8529,Ext emergency open fr d diseng,Ext emergency open fr d diseng,Z,without
 8530,Ext emerg open mid/re d diseng,Ext emerg open mid/re d diseng,A,with
 8530,Ext emerg open mid/re d diseng,Ext emerg open mid/re d diseng,B,prepared
-8530,Ext emerg open mid/re d diseng,Ext emerg open mid/re d diseng,Z,without
 8530,Ext emerg open mid/re d diseng,Ext emerg open mid/re d diseng,B,prepared
+8530,Ext emerg open mid/re d diseng,Ext emerg open mid/re d diseng,Z,without
 8530,Ext emerg open mid/re d diseng,Ext emerg open mid/re d diseng,Z,without
 8531,Door automatic control,Door automatic control,A,mid and rear doors
 8531,Door automatic control,Door automatic control,B,all doors
@@ -7892,10 +8689,10 @@
 8573,Stop req by door auto act but,Stop req by door auto act but,A,with
 8573,Stop req by door auto act but,Stop req by door auto act but,Z,without
 8574,St req by self-service button,St req by self-service button,A,internal
-8574,St req by self-service button,St req by self-service button,B,internal/external
-8574,St req by self-service button,St req by self-service button,Z,without
 8574,St req by self-service button,St req by self-service button,A,internal
 8574,St req by self-service button,St req by self-service button,B,internal/external
+8574,St req by self-service button,St req by self-service button,B,internal/external
+8574,St req by self-service button,St req by self-service button,Z,without
 8574,St req by self-service button,St req by self-service button,Z,without
 8575,Stop request doors reset,Stop request doors reset,A,mid and rear door
 8575,Stop request doors reset,Stop request doors reset,B,all doors
@@ -8500,28 +9297,28 @@
 8780,BSB release cond dir ind activ,BSB release cond dir ind activ,A,with
 8780,BSB release cond dir ind activ,BSB release cond dir ind activ,Z,without
 8781,Self-service button front door,Self-service button front door,C,prepared external
-8781,Self-service button front door,Self-service button front door,D,prepared internal
-8781,Self-service button front door,Self-service button front door,E,prepared internal and external
-8781,Self-service button front door,Self-service button front door,Z,without
 8781,Self-service button front door,Self-service button front door,C,prepared external
 8781,Self-service button front door,Self-service button front door,D,prepared internal
+8781,Self-service button front door,Self-service button front door,D,prepared internal
+8781,Self-service button front door,Self-service button front door,E,prepared internal and external
 8781,Self-service button front door,Self-service button front door,E,prepared internal and external
 8781,Self-service button front door,Self-service button front door,Z,without
+8781,Self-service button front door,Self-service button front door,Z,without
+8782,Self-serv button mid+rear door,Self-serv button mid+rear door,A,internal
 8782,Self-serv button mid+rear door,Self-serv button mid+rear door,A,internal
 8782,Self-serv button mid+rear door,Self-serv button mid+rear door,B,internal/external
-8782,Self-serv button mid+rear door,Self-serv button mid+rear door,C,external
-8782,Self-serv button mid+rear door,Self-serv button mid+rear door,Z,without
-8782,Self-serv button mid+rear door,Self-serv button mid+rear door,A,internal
 8782,Self-serv button mid+rear door,Self-serv button mid+rear door,B,internal/external
 8782,Self-serv button mid+rear door,Self-serv button mid+rear door,C,external
+8782,Self-serv button mid+rear door,Self-serv button mid+rear door,C,external
+8782,Self-serv button mid+rear door,Self-serv button mid+rear door,Z,without
 8782,Self-serv button mid+rear door,Self-serv button mid+rear door,Z,without
 8783,Photo cell front door,Photo cell front door,B,prepared
-8783,Photo cell front door,Photo cell front door,Z,without
 8783,Photo cell front door,Photo cell front door,B,prepared
 8783,Photo cell front door,Photo cell front door,Z,without
+8783,Photo cell front door,Photo cell front door,Z,without
+8784,Photo cell middle + rear door,Photo cell middle + rear door,A,with
 8784,Photo cell middle + rear door,Photo cell middle + rear door,A,with
 8784,Photo cell middle + rear door,Photo cell middle + rear door,Z,without
-8784,Photo cell middle + rear door,Photo cell middle + rear door,A,with
 8784,Photo cell middle + rear door,Photo cell middle + rear door,Z,without
 8785,D contr sw op door indic light,D contr sw op door indic light,A,steady
 8785,D contr sw op door indic light,D contr sw op door indic light,B,?ashing
@@ -8564,12 +9361,12 @@
 8815,Stop request button wireless,Stop request button wireless,B,prepared for
 8815,Stop request button wireless,Stop request button wireless,Z,without
 8816,Door warning indication door,Door warning indication door,C,prepared for audio
-8816,Door warning indication door,Door warning indication door,D,prepared for audio and light
-8816,Door warning indication door,Door warning indication door,E,prepared for light
-8816,Door warning indication door,Door warning indication door,Z,without
 8816,Door warning indication door,Door warning indication door,C,prepared for audio
 8816,Door warning indication door,Door warning indication door,D,prepared for audio and light
+8816,Door warning indication door,Door warning indication door,D,prepared for audio and light
 8816,Door warning indication door,Door warning indication door,E,prepared for light
+8816,Door warning indication door,Door warning indication door,E,prepared for light
+8816,Door warning indication door,Door warning indication door,Z,without
 8816,Door warning indication door,Door warning indication door,Z,without
 8817,Door emerg opened warning door,Door emerg opened warning door,A,steady
 8817,Door emerg opened warning door,Door emerg opened warning door,B,intermittent
@@ -8714,8 +9511,8 @@
 8912,Radar side mo horizontal angle,Radar side mo horizontal angle,A,14 deg
 8913,Remote powertr act spl sh PTO,Remote powertr act spl sh PTO,A,with
 8932,Power take-o? EL,Power take-o? EL,A,with
-8932,Power take-o? EL,Power take-o? EL,Z,without
 8932,Power take-o? EL,Power take-o? EL,A,with
+8932,Power take-o? EL,Power take-o? EL,Z,without
 8932,Power take-o? EL,Power take-o? EL,Z,without
 8934,PTO rot speed ctrl CAN-int ver,PTO rot speed ctrl CAN-int ver,B,2
 8937,Radio mute function driv area,Radio mute function driv area,A,front door

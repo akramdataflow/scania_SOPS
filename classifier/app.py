@@ -1,35 +1,61 @@
-
 import os
 import csv
-import re
-from typing import List, Dict, Tuple, Optional
+import shutil
+import time
+import tkinter as tk
+from tkinter import ttk, filedialog, messagebox, simpledialog
+import xml.etree.ElementTree as ET
 
-import streamlit as st
-from lxml import etree
+APP_TITLE = "Scania Spec Index (ttkinter, CSV only — meanings + dynamic 3113..3148, responsive, search)"
 
-APP_TITLE = "Scania FPC Spec Viewer — XML + CSV mapping (no pandas/numpy)"
-DEFAULT_FPC_TAG = "FPC"  # element name; attributes are exactly Name/Value
+# Base paths
+BASE_DIR = os.path.join(os.path.expanduser("~"), r"Documents\GitHub\scania_SOPS\classifier")
+CSV_PATH = os.path.join(BASE_DIR, "spec_index.csv")
+XML_STORE_DIR = os.path.join(BASE_DIR, "stored_xml")
 
-def fixed_csv_path() -> str:
-    home = os.path.expanduser("~")
-    return os.path.join(home, r"Documents\GitHub\scania_SOPS\classifier\sops_fpc_mapping.csv")
+# Mapping candidates
+MAPPING_CANDIDATES = [
+    r"C:\Users\Kstore\Documents\GitHub\scania_SOPS\sops_fpc_mapping.csv",
+    os.path.join(os.path.expanduser("~"), r"Documents\GitHub\scania_SOPS\sops_fpc_mapping.csv"),
+    os.path.join(os.path.expanduser("~"), r"Documents\GitHub\scania_SOPS\classifier\sops_fpc_mapping.csv"),
+    os.path.join(os.path.dirname(__file__), "sops_fpc_mapping.csv"),
+]
 
-def local_csv_path() -> str:
-    return os.path.join(os.path.dirname(__file__), "sops_fpc_mapping.csv")
+# Fixed fields (Descriptions only). (Power_kW removed as requested)
+FIXED_FIELDS = [
+    ("448",  "Axles"),
+    ("3127", "EngineECU"),
+    ("408",  "EngineSoftware"),
+    ("142",  "EngineSize"),
+    ("3129", "GearboxECU"),  # special rule: if code == 'Z' -> 'GMan'
+]
 
-def find_csv_mapping() -> str:
-    for p in [fixed_csv_path(), local_csv_path()]:
-        if os.path.exists(p):
-            return p
-    return ""
+# Dynamic FPC range
+DYN_START = 3113
+DYN_END   = 3148
+DYN_RANGE = [str(i) for i in range(DYN_START, DYN_END + 1)]
+
+# Columns whose names contain this word will be removed (case-insensitive)
+FORBIDDEN_SUBSTR = "environment"
+
+# Mapping stores
+LONG_BY_ID   = {}
+SHORT_BY_ID  = {}
+DESC_BY_PAIR = {}
+MAPPING_PATH = ""
+
+# ---------- Helpers ----------
+def ensure_dirs():
+    os.makedirs(BASE_DIR, exist_ok=True)
+    os.makedirs(XML_STORE_DIR, exist_ok=True)
+
+def local_name(tag: str) -> str:
+    if "}" in tag:
+        return tag.split("}", 1)[1]
+    return tag
 
 def _clean(s: str) -> str:
-    s = (s or "").strip()
-    s = re.sub(r"\s+", " ", s)
-    return s
-
-def _norm_header(h: str) -> str:
-    return re.sub(r"[^a-z0-9]+", "", (h or "").lower())
+    return (s or "").strip()
 
 def _is_intlike(s: str) -> bool:
     try:
@@ -38,146 +64,463 @@ def _is_intlike(s: str) -> bool:
     except Exception:
         return False
 
-@st.cache_data(show_spinner=False)
-def load_csv_mapping(path: str) -> Tuple[Dict[str, str], Dict[Tuple[str,str], str]]:
-    long_by_id: Dict[str, str] = {}
-    desc_by_pair: Dict[Tuple[str,str], str] = {}
-    if not path or not os.path.exists(path):
-        raise FileNotFoundError("sops_fpc_mapping.csv not found")
-    with open(path, "r", encoding="utf-8", newline="") as f:
-        rows = list(csv.reader(f))
-    if not rows:
-        return long_by_id, desc_by_pair
-    headers = rows[0]
-    norm_headers = { _norm_header(h): i for i, h in enumerate(headers) }
-    def idx_of(*aliases):
-        for a in aliases:
-            key = _norm_header(a)
-            if key in norm_headers:
-                return norm_headers[key]
-        return None
-    idx_fpc = idx_of("FPC- ID", "FPC ID", "fpc id", "fpc", "id")
-    idx_long = idx_of("Long", "Name", "Parameter", "Title")
-    idx_code = idx_of("code", "Value", "val")
-    idx_desc = idx_of("Description", "Desc", "Meaning", "Explanation")
-    if idx_fpc is None:
-        for k in ["fpcid","fpc","id"]:
-            if k in norm_headers: idx_fpc = norm_headers[k]; break
-    if idx_long is None:
-        for k in ["long","name","parameter","title"]:
-            if k in norm_headers: idx_long = norm_headers[k]; break
-    if idx_code is None:
-        for k in ["code","value","val"]:
-            if k in norm_headers: idx_code = norm_headers[k]; break
-    if idx_desc is None:
-        for k in ["description","desc","meaning","explanation"]:
-            if k in norm_headers: idx_desc = norm_headers[k]; break
-    for r in rows[1:]:
-        if not r: continue
-        def at(i): return _clean(r[i]) if (i is not None and i < len(r)) else ""
-        fpc_raw = at(idx_fpc); long_txt = at(idx_long); code = at(idx_code); desc = at(idx_desc)
-        if not fpc_raw: continue
-        keys_for_fpc = {fpc_raw}
-        if _is_intlike(fpc_raw): keys_for_fpc.add(str(int(fpc_raw)))
-        for fpc_key in keys_for_fpc:
-            if long_txt and fpc_key not in long_by_id: long_by_id[fpc_key] = long_txt
-            if code and desc: desc_by_pair[(fpc_key, code)] = desc
-    return long_by_id, desc_by_pair
+def unique_store_path(original_path: str) -> str:
+    base = os.path.basename(original_path)
+    name, ext = os.path.splitext(base)
+    dest = os.path.join(XML_STORE_DIR, base)
+    if not os.path.exists(dest):
+        return dest
+    suffix = time.strftime("%Y%m%d_%H%M%S")
+    dest = os.path.join(XML_STORE_DIR, f"{name}_{suffix}{ext}")
+    c = 1
+    while os.path.exists(dest):
+        dest = os.path.join(XML_STORE_DIR, f"{name}_{suffix}_{c}{ext}")
+        c += 1
+    return dest
 
-def parse_xml_fpc(xml_bytes: bytes, tag_guess: str = DEFAULT_FPC_TAG) -> List[Dict[str, str]]:
-    parser = etree.XMLParser(recover=True, huge_tree=True)
-    root = etree.fromstring(xml_bytes, parser=parser)
-    xpath = f"//*[translate(local-name(), '{tag_guess.lower()}', '{tag_guess.upper()}')='{tag_guess.upper()}']"
-    elems = root.xpath(xpath)
-    rows, seen = [], set()
-    for el in elems:
-        name  = el.attrib.get("Name")
-        value = el.attrib.get("Value")
-        if name is None or value is None: continue
-        fpc_id = _clean(name); code = _clean(value)
-        key = (fpc_id, code)
-        if key in seen: continue
-        seen.add(key)
-        rows.append({"fpc_id": fpc_id, "code": code})
+# ---------- Mapping ----------
+def resolve_mapping_path() -> str:
+    for p in MAPPING_CANDIDATES:
+        if p and os.path.exists(p):
+            return p
+    return ""
+
+def load_mapping():
+    global LONG_BY_ID, SHORT_BY_ID, DESC_BY_PAIR, MAPPING_PATH
+    LONG_BY_ID, SHORT_BY_ID, DESC_BY_PAIR = {}, {}, {}
+    MAPPING_PATH = resolve_mapping_path()
+    if not MAPPING_PATH:
+        return
+    try:
+        with open(MAPPING_PATH, "r", encoding="utf-8", newline="") as f:
+            rows = list(csv.reader(f))
+        if not rows:
+            return
+        headers = rows[0]
+        norm = {"".join(ch for ch in (h or "").lower() if ch.isalnum()): i for i, h in enumerate(headers)}
+        def idx_of(*names):
+            for n in names:
+                k = "".join(ch for ch in (n or "").lower() if ch.isalnum())
+                if k in norm: return norm[k]
+            return None
+        idx_fpc  = idx_of("FPC- ID","FPC ID","fpc id","fpc","id")
+        idx_short= idx_of("Short")
+        idx_long = idx_of("Long","Name","Parameter","Title")
+        idx_code = idx_of("code","Value","val")
+        idx_desc = idx_of("Description","Desc","Meaning","Explanation")
+        if idx_fpc is None:
+            for k in ["fpcid","fpc","id"]:
+                if k in norm: idx_fpc = norm[k]; break
+        for r in rows[1:]:
+            if not r: continue
+            def at(i): return _clean(r[i]) if (i is not None and i < len(r)) else ""
+            fpc_raw = at(idx_fpc)
+            short   = at(idx_short) if idx_short is not None else ""
+            long_   = at(idx_long) if idx_long is not None else ""
+            code    = at(idx_code)
+            desc    = at(idx_desc)
+            if not fpc_raw: continue
+            keys = {fpc_raw}
+            if _is_intlike(fpc_raw): keys.add(str(int(fpc_raw)))
+            for fk in keys:
+                if long_ and fk not in LONG_BY_ID: LONG_BY_ID[fk] = long_
+                if short and fk not in SHORT_BY_ID: SHORT_BY_ID[fk] = short
+                if code and desc: DESC_BY_PAIR[(fk, code)] = desc
+    except Exception as e:
+        messagebox.showerror("Mapping load error", f"Failed to read mapping CSV:\n{e}")
+
+def meaning_for(fpc_id: str, code: str) -> str:
+    if not fpc_id: return ""
+    cands = [fpc_id]
+    if _is_intlike(fpc_id): cands.append(str(int(fpc_id)))
+    for fk in cands:
+        d = DESC_BY_PAIR.get((fk, code))
+        if d: return d
+    return ""
+
+def short_for(fpc_id: str) -> str:
+    if not fpc_id: return ""
+    cands = [fpc_id]
+    if _is_intlike(fpc_id): cands.append(str(int(fpc_id)))
+    for fk in cands:
+        s = SHORT_BY_ID.get(fk)
+        if s: return s
+    return f"FPC_{fpc_id}"
+
+# ---------- XML ----------
+def parse_fpc_map(xml_path: str) -> dict:
+    fpc = {}
+    try:
+        tree = ET.parse(xml_path)
+        root = tree.getroot()
+    except Exception as e:
+        raise RuntimeError(f"XML parse failed: {e}")
+    for el in root.iter():
+        if local_name(el.tag).upper() == "FPC":
+            name = el.attrib.get("Name")
+            val  = el.attrib.get("Value")
+            if name is not None and val is not None:
+                fpc[name.strip()] = val.strip()
+    return fpc
+
+# ---------- CSV header ----------
+def _remove_forbidden(name: str) -> bool:
+    """Return True if this column name must be removed (contains 'environment', case-insensitive)."""
+    return FORBIDDEN_SUBSTR and (FORBIDDEN_SUBSTR.lower() in (name or "").lower())
+
+def compute_csv_columns():
+    """
+    Header = Year + fixed + dynamic (3113..3148 by Short, dedup by label, minus forbidden) + XML_Path.
+    XML_Path kept for CSV only (hidden in UI).
+    """
+    cols = ["Year"]
+    for _, col_name in FIXED_FIELDS:
+        if not _remove_forbidden(col_name):
+            cols.append(col_name)
+
+    dynamic_labels = []
+    seen = set(cols)
+    for fid in DYN_RANGE:
+        label = short_for(fid)
+        if _remove_forbidden(label):
+            continue                     # drop environment columns entirely
+        if label in seen:
+            continue                     # dedup: skip repeated Short
+        seen.add(label)
+        dynamic_labels.append((fid, label))
+
+    cols.extend([label for _, label in dynamic_labels])
+    cols.append("XML_Path")
+    return cols, dynamic_labels
+
+def upgrade_csv_if_needed(target_header):
+    if not os.path.exists(CSV_PATH):
+        with open(CSV_PATH, "w", encoding="utf-8", newline="") as f:
+            csv.writer(f).writerow(target_header)
+        return
+    with open(CSV_PATH, "r", encoding="utf-8", newline="") as f:
+        old_rows = list(csv.reader(f))
+    if not old_rows:
+        with open(CSV_PATH, "w", encoding="utf-8", newline="") as f:
+            csv.writer(f).writerow(target_header)
+        return
+    old_header = old_rows[0]
+    if old_header == target_header:
+        return
+    old_idx = {name: i for i, name in enumerate(old_header)}
+    tmp = CSV_PATH + ".tmp"
+    with open(tmp, "w", encoding="utf-8", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(target_header)
+        for r in old_rows[1:]:
+            new_row = []
+            for col in target_header:
+                if col in old_idx and old_idx[col] < len(r):
+                    new_row.append(r[old_idx[col]])
+                else:
+                    new_row.append("")
+            w.writerow(new_row)
+    shutil.move(tmp, CSV_PATH)
+
+# ---------- Build & save ----------
+def build_record(xml_path: str, year: str, stored_xml_path: str, dynamic_labels):
+    fpc_map = parse_fpc_map(xml_path)
+    header, _ = compute_csv_columns()
+    rec = {col: "" for col in header}
+    rec["Year"] = (year or "").strip()
+
+    # Fixed fields (meanings)
+    for fpc_id, col_name in FIXED_FIELDS:
+        if _remove_forbidden(col_name):   # safety, though fixed names likely not forbidden
+            continue
+        code = fpc_map.get(fpc_id, "")
+        if fpc_id == "3129" and code == "Z":
+            rec[col_name] = "GMan"
+        else:
+            rec[col_name] = meaning_for(fpc_id, code)
+
+    # Dynamic (3113..3148)
+    for fpc_id, col_label in dynamic_labels:
+        if _remove_forbidden(col_label):
+            continue
+        code = fpc_map.get(fpc_id, "")
+        rec[col_label] = meaning_for(fpc_id, code)
+
+    rec["XML_Path"] = stored_xml_path
+    return rec
+
+def append_record(rec, header):
+    upgrade_csv_if_needed(header)
+    with open(CSV_PATH, "a", encoding="utf-8", newline="") as f:
+        w = csv.writer(f)
+        row = [rec.get(col, "") for col in header]
+        w.writerow(row)
+
+def read_all_records(header):
+    if not os.path.exists(CSV_PATH):
+        return []
+    rows = []
+    with open(CSV_PATH, "r", encoding="utf-8", newline="") as f:
+        rdr = csv.DictReader(f)
+        for r in rdr:
+            rows.append(r)
     return rows
 
-def merge_specs(xml_rows: List[Dict[str, str]], long_by_id: Dict[str,str], desc_by_pair: Dict[Tuple[str,str], str]) -> List[Dict[str,str]]:
-    out = []
-    for r in xml_rows:
-        fpc_raw = r["fpc_id"]; code = r["code"]
-        candidates = [fpc_raw] + ([str(int(fpc_raw))] if _is_intlike(fpc_raw) else [])
-        long_txt = ""; desc_txt = ""
-        for fk in candidates:
-            if not long_txt and fk in long_by_id: long_txt = long_by_id[fk]
-            if not desc_txt and (fk, code) in desc_by_pair: desc_txt = desc_by_pair[(fk, code)]
-            if long_txt and desc_txt: break
-        out.append({"FPC ID": fpc_raw, "Long": long_txt, "Value": code, "Description": desc_txt})
-    def _sort_key(it):
-        f = it["FPC ID"]
-        try: f2 = int(f)
-        except: f2 = f
-        return (f2, it["Value"])
-    out.sort(key=_sort_key)
-    return out
+# ---------- Search Window ----------
+class SearchWindow(tk.Toplevel):
+    def __init__(self, parent, columns, rows, current_criteria):
+        super().__init__(parent)
+        self.title("Search")
+        self.transient(parent)
+        self.grab_set()
+        self.resizable(True, True)
 
-def render_table(rows: List[Dict[str, str]]):
-    css = """
-    <style>
-    table.fpc { width:100%; border-collapse: collapse; }
-    table.fpc th, table.fpc td { border: 1px solid #ddd; padding: 8px; font-size: 14px; }
-    table.fpc th { background: #f2f2f2; text-align: left; }
-    tr.unknown td { background: #fff3cd; }
-    </style>
-    """
-    html = ["<table class='fpc'>"]
-    html.append("<thead><tr><th>FPC ID</th><th>Long</th><th>Value</th><th>Description</th></tr></thead><tbody>")
-    for r in rows:
-        klass = "unknown" if not r.get("Description") else ""
-        html.append(f"<tr class='{klass}'><td>{r['FPC ID']}</td><td>{r['Long']}</td><td>{r['Value']}</td><td>{r['Description']}</td></tr>")
-    html.append("</tbody></table>")
-    st.markdown(css + "\n" + "\n".join(html), unsafe_allow_html=True)
+        self.parent = parent
+        self.columns = columns
+        self.widgets = {}
 
-st.set_page_config(page_title=APP_TITLE, layout="wide")
-st.title("📄 Scania FPC Spec Viewer — XML + CSV mapping")
-st.caption("يرفع XML فقط. يقرأ sops_fpc_mapping.csv تلقائيًا (مسار ثابت أو نفس مجلد التطبيق). لا يعتمد على pandas/numpy.")
+        frm = ttk.Frame(self, padding=8)
+        frm.pack(fill="both", expand=True)
 
-csv_path = find_csv_mapping()
-if not csv_path:
-    st.error("لم يتم العثور على ملف الخريطة sops_fpc_mapping.csv.\nضعه في: "
-             "`~/Documents/GitHub/scania_SOPS/classifier/` أو بجانب app.py.")
-    st.stop()
+        frm.columnconfigure(1, weight=1)
+        for i, col in enumerate(columns):
+            ttk.Label(frm, text=f"{col}:").grid(row=i, column=0, sticky="w", padx=4, pady=3)
+            values = sorted({ (r.get(col,"") or "") for r in rows if (r.get(col,"") or "") })
+            options = ["(Any)"] + values
+            cb = ttk.Combobox(frm, values=options, state="readonly")
+            sel = current_criteria.get(col, "(Any)")
+            if sel not in options:
+                sel = "(Any)"
+            cb.set(sel)
+            cb.grid(row=i, column=1, sticky="ew", padx=4, pady=3)
+            self.widgets[col] = cb
 
-try:
-    long_by_id, desc_by_pair = load_csv_mapping(csv_path)
-except Exception as e:
-    st.error(f"تعذر تحميل/قراءة sops_fpc_mapping.csv: {e}")
-    st.stop()
+        btns = ttk.Frame(frm)
+        btns.grid(row=len(columns), column=0, columnspan=2, sticky="e", pady=(10,0))
+        ttk.Button(btns, text="Clear", command=self.on_clear).pack(side="left", padx=4)
+        ttk.Button(btns, text="Apply", command=self.on_apply).pack(side="left", padx=4)
+        ttk.Button(btns, text="Close", command=self.destroy).pack(side="left", padx=4)
 
-with st.sidebar:
-    st.header("المدخل الوحيد")
-    xml_file = st.file_uploader("XML ملف الشاحنة", type=["xml"])
-    with st.expander("إعدادات متقدمة", expanded=False):
-        tag_guess = st.text_input("اسم عنصر FPC داخل XML (غالبًا: FPC)", value=DEFAULT_FPC_TAG)
-    st.caption(f"خريطة المواصفات: `{csv_path}`")
+    def on_clear(self):
+        for cb in self.widgets.values():
+            cb.set("(Any)")
 
-st.subheader("النتيجة: FPC ID | Long | Value | Description")
-if not xml_file:
-    st.info("الرجاء رفع ملف XML.")
-else:
-    try:
-        xml_bytes = xml_file.read()
-        fpc_rows = parse_xml_fpc(xml_bytes, tag_guess=tag_guess)
-    except Exception as e:
-        st.error(f"فشل تحليل XML: {e}")
-        st.stop()
+    def on_apply(self):
+        crit = {}
+        for col, cb in self.widgets.items():
+            val = cb.get()
+            if val and val != "(Any)":
+                crit[col] = val
+        self.parent.set_search_criteria(crit)
+        self.destroy()
 
-    if not fpc_rows:
-        st.warning("لم يتم العثور على مدخلات FPC في XML.")
-    else:
-        merged = merge_specs(fpc_rows, long_by_id, desc_by_pair)
-        c1,c2,c3 = st.columns(3)
-        c1.metric("FPC entries", len(merged))
-        c2.metric("Long found", sum(1 for r in merged if r["Long"]))
-        c3.metric("Description found", sum(1 for r in merged if r["Description"]))
-        render_table(merged)
-        st.caption("الصفوف المظللة تعني عدم العثور على Description لهذه القيمة في ملف الخريطة.")
+# ---------- UI ----------
+class App(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title(APP_TITLE)
+        self.geometry("1280x700")
+
+        ensure_dirs()
+        load_mapping()
+
+        self.header, self.dynamic_labels = compute_csv_columns()
+        upgrade_csv_if_needed(self.header)
+
+        # Top bar
+        top = ttk.Frame(self, padding=8)
+        top.pack(fill="x")
+
+        ttk.Button(top, text="Add XML(s)", command=self.on_add_xmls).pack(side="left")
+        ttk.Button(top, text="Refresh", command=self.refresh_table).pack(side="left", padx=(8, 0))
+        ttk.Button(top, text="Search…", command=self.open_search_window).pack(side="left", padx=(8, 0))
+
+        map_status = MAPPING_PATH if MAPPING_PATH else "NOT FOUND (meanings will be blank)"
+        self.map_status_var = tk.StringVar(value=f"Mapping: {map_status}")
+        ttk.Label(top, textvariable=self.map_status_var).pack(side="left", padx=(16, 0))
+
+        ttk.Label(top, text="Filter:",).pack(side="left", padx=(16, 4))
+        self.filter_var = tk.StringVar()
+        ent = ttk.Entry(top, textvariable=self.filter_var, width=40)
+        ent.pack(side="left")
+        ent.bind("<KeyRelease>", lambda e: self.apply_filter())
+
+        ttk.Button(top, text="Copy Selected to Downloads", command=self.copy_selected).pack(side="right")
+
+        # Treeview
+        self.visible_columns = []      # computed after loading rows (no XML_Path)
+        self.tree = ttk.Treeview(self, columns=(), show="headings")
+        self.row_by_iid = {}           # iid -> full record (to access hidden XML_Path)
+
+        vsb = ttk.Scrollbar(self, orient="vertical", command=self.tree.yview)
+        hsb = ttk.Scrollbar(self, orient="horizontal", command=self.tree.xview)
+        self.tree.configure(yscroll=vsb.set, xscroll=hsb.set)
+
+        self.tree.pack(fill="both", expand=True, side="left")
+        vsb.pack(fill="y", side="right")
+        hsb.pack(fill="x", side="bottom")
+
+        # Auto-fit on resize
+        self.bind("<Configure>", lambda e: self.auto_fit_columns())
+
+        # Search criteria (single choice per column)
+        self.search_criteria = {}
+
+        self.all_rows = []
+        self.refresh_table()
+
+    # ----- Visible columns -----
+    def compute_visible_columns(self, rows):
+        """Hide XML_Path; drop columns empty across all rows; keep Year + fixed always."""
+        must_keep = {"Year"} | {name for _, name in FIXED_FIELDS if not _remove_forbidden(name)}
+        cols = [c for c in self.header if c != "XML_Path" and not _remove_forbidden(c)]
+        nonempty = {c: False for c in cols}
+        for r in rows:
+            for c in cols:
+                if (r.get(c) or "").strip():
+                    nonempty[c] = True
+        visible = []
+        for c in cols:
+            if c in must_keep or nonempty[c]:
+                visible.append(c)
+        return visible
+
+    def rebuild_tree_columns(self):
+        self.tree["columns"] = self.visible_columns
+        for c in self.visible_columns:
+            self.tree.heading(c, text=c)
+            self.tree.column(c, width=120, anchor="w", stretch=True)
+
+    # ----- Responsive columns -----
+    def auto_fit_columns(self):
+        self.update_idletasks()
+        if not self.visible_columns:
+            return
+        tree_w = self.tree.winfo_width()
+        if tree_w <= 1:
+            return
+        vertical_bar_width = 18
+        padding = 20
+        avail = max(200, tree_w - vertical_bar_width - padding)
+        weights = {c: 1 for c in self.visible_columns}
+        total_weight = sum(weights.values()) or 1
+        min_widths = {c: 80 for c in self.visible_columns}
+        remaining = avail - sum(min_widths.get(c, 0) for c in self.visible_columns)
+        if remaining < 0:
+            remaining = 0
+        for c in self.visible_columns:
+            portion = (weights[c] / total_weight)
+            extra = int(remaining * portion)
+            width = min_widths.get(c, 80) + extra
+            self.tree.column(c, width=max(60, width), stretch=True)
+
+    # ----- Search handling -----
+    def open_search_window(self):
+        SearchWindow(self, self.visible_columns, self.all_rows, self.search_criteria)
+
+    def set_search_criteria(self, criteria: dict):
+        self.search_criteria = criteria
+        self.apply_filter()
+
+    # ----- Actions -----
+    def on_add_xmls(self):
+        paths = filedialog.askopenfilenames(
+            title="Select Scania XML file(s)",
+            filetypes=[("XML files", "*.xml"), ("All files", "*.*")]
+        )
+        if not paths:
+            return
+        added = 0
+        for p in paths:
+            year = simpledialog.askstring("Year", f"Enter production year for:\n{os.path.basename(p)}", parent=self)
+            if year is None:
+                continue
+            year = year.strip()
+            try:
+                dest = unique_store_path(p)
+                shutil.copy2(p, dest)
+                rec = build_record(p, year, dest, self.dynamic_labels)
+                append_record(rec, self.header)
+                added += 1
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to add {os.path.basename(p)}:\n{e}")
+        if added:
+            messagebox.showinfo("Done", f"Added {added} file(s) to CSV.")
+        self.refresh_table()
+
+    def refresh_table(self):
+        self.all_rows = read_all_records(self.header)
+        self.visible_columns = self.compute_visible_columns(self.all_rows)
+        self.rebuild_tree_columns()
+        self.render_rows(self.all_rows)
+
+    def render_rows(self, rows):
+        self.row_by_iid.clear()
+        for i in self.tree.get_children():
+            self.tree.delete(i)
+        for r in rows:
+            values = [r.get(col, "") for col in self.visible_columns]
+            iid = self.tree.insert("", "end", values=values)
+            self.row_by_iid[iid] = r  # keep full record (for XML_Path)
+        self.auto_fit_columns()
+
+    def apply_filter(self):
+        rows = list(self.all_rows)
+
+        # Apply single-choice criteria (AND)
+        if self.search_criteria:
+            filtered = []
+            for r in rows:
+                ok = True
+                for col, val in self.search_criteria.items():
+                    if (r.get(col, "") or "") != val:
+                        ok = False
+                        break
+                if ok:
+                    filtered.append(r)
+            rows = filtered
+
+        # Free-text filter (visible columns only)
+        q = (self.filter_var.get() or "").strip().lower()
+        if q:
+            filtered = []
+            for r in rows:
+                row_text = " | ".join(str(r.get(col, "")) for col in self.visible_columns).lower()
+                if q in row_text:
+                    filtered.append(r)
+            rows = filtered
+
+        self.render_rows(rows)
+
+    def copy_selected(self):
+        sel = self.tree.selection()
+        if not sel:
+            messagebox.showwarning("No selection", "Please select a row to copy its XML.")
+            return
+        downloads = os.path.join(os.path.expanduser("~"), "Downloads")
+        os.makedirs(downloads, exist_ok=True)
+        copied = 0
+        for iid in sel:
+            row = self.row_by_iid.get(iid, {})
+            xml_path = row.get("XML_Path", "")
+            if not xml_path or not os.path.exists(xml_path):
+                messagebox.showwarning("Missing file", f"Stored XML path not found:\n{xml_path}")
+                continue
+            base = os.path.basename(xml_path)
+            dest = os.path.join(downloads, base)
+            if os.path.exists(dest):
+                name, ext = os.path.splitext(base)
+                suffix = time.strftime("%Y%m%d_%H%M%S")
+                dest = os.path.join(downloads, f"{name}_{suffix}{ext}")
+            try:
+                shutil.copy2(xml_path, dest)
+                copied += 1
+            except Exception as e:
+                messagebox.showerror("Copy failed", f"Failed to copy to Downloads:\n{e}")
+        if copied:
+            messagebox.showinfo("Copied", f"Copied {copied} file(s) to Downloads.")
+
+if __name__ == "__main__":
+    load_mapping()
+    app = App()
+    app.mainloop()
