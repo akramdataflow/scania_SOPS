@@ -3,7 +3,7 @@ setlocal
 cd /d "%~dp0"
 
 :: ???? ??? ????? ??? ?? ?????
-set TARGET=Full_SOPS_Editor_v8_13_EN_Fixed_Rev10.py
+set TARGET=Full_SOPS_Editor_v8_13_EN_Ready_Custom_v4_ecu_vin_diag_bottombar_fixedfinal.py
 
 echo ================================================================
 echo  DEBUG MODE - Python launcher

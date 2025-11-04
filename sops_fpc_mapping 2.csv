@@ -6365,10 +6365,6 @@
 3838,Bed upper,Bed upper,Z,without
 3840,Coffee maker,Coffee maker,A,with
 3840,Coffee maker,Coffee maker,Z,without
-3845,Storage side panel,Storage side panel,B,Right hand side
-3845,Storage side panel,Storage side panel,Z,Without
-3845,Storage side panel,Storage side panel,C,Left and right hand side
-3845,Storage side panel,Storage side panel,A,Left hand side
 3847,Instr panel decorative strip,Instr panel decorative strip,B,wood
 3847,Instr panel decorative strip,Instr panel decorative strip,D,dark chrome
 3847,Instr panel decorative strip,Instr panel decorative strip,C,dark grey
@@ -6377,16 +6373,6 @@
 3848,Instrument panel colour,Instrument panel colour,C,black/grey
 3849,Underskirt instr panel colour,Underskirt instr panel colour,A,grey
 3849,Underskirt instr panel colour,Underskirt instr panel colour,B,sand
-3852,PTO EG side,PTO EG side,AG,EG503P
-3852,PTO EG side,PTO EG side,AH,EG503F
-3852,PTO EG side,PTO EG side,CB,EG210F
-3852,PTO EG side,PTO EG side,AF,EG502F
-3852,PTO EG side,PTO EG side,AE,EG502P
-3852,PTO EG side,PTO EG side,AA,EG500P
-3852,PTO EG side,PTO EG side,AB,EG500F
-3852,PTO EG side,PTO EG side,Z,Without
-3852,PTO EG side,PTO EG side,AD,EG501F
-3852,PTO EG side,PTO EG side,AC,EG501P
 3853,PTO EG rear,PTO EG rear,AA,EG640F
 3853,PTO EG rear,PTO EG rear,AB,EG640P
 3853,PTO EG rear,PTO EG rear,AC,EG641F
@@ -6414,9 +6400,6 @@
 3853,PTO EG rear,PTO EG rear,CE,EG643F
 3853,PTO EG rear,PTO EG rear,CF,EG643P
 3853,PTO EG rear,PTO EG rear,Z,without
-3854,PTO EG number of connections,PTO EG number of connections,A,1
-3854,PTO EG number of connections,PTO EG number of connections,B,2
-3854,PTO EG number of connections,PTO EG number of connections,Z,Without
 3855,Bluetooth,Bluetooth,A,with
 3855,Bluetooth,Bluetooth,Z,without
 3869,Neutral position sensor,Neutral position sensor,A,Conneded to COO
@@ -6499,14 +6482,10 @@
 3914,Tachograph,Tachograph,Z,without
 3916,Speed sign ampI,Speed signal ampli?er,A,with
 3916,Speed sign ampI,Speed signal ampli?er,Z,without
-3917,Crankcase ventilation antifreeze,Crankcase ventilation antifreeze,Z,Without
-3917,Crankcase ventilation antifreeze,Crankcase ventilation antifreeze,A,with
 3920,Bed carrier material,Bed carrier material,A,Plastic
 3920,Bed carrier material,Bed carrier material,B,wood
 3924,Engine stop request,Engine stop request,A,With
 3924,Engine stop request,Engine stop request,Z,Without
-3925,Coolant freeze point,Coolant freeze point,B,Freezing point -40 degrees
-3925,Coolant freeze point,Coolant freeze point,A,Freezing point -25 degrees C
 3928,Interactive driver training,Interactive driver training,A,with
 3928,Interactive driver training,Interactive driver training,B,gen 2
 3928,Interactive driver training,Interactive driver training,C,gen 2.1
@@ -6518,9 +6497,6 @@
 3938,Collision warning,Collision warning,Z,without
 3939,Guiding light parked vehicle,Guiding light parked vehicle,A,with
 3939,Guiding light parked vehicle,Guiding light parked vehicle,Z,without
-3948,Sunvisor door driver side,Sunvisor door driver side,B,Blind
-3948,Sunvisor door driver side,Sunvisor door driver side,Z,Without
-3948,Sunvisor door driver side,Sunvisor door driver side,A,Foldable
 3949,Fan hub solenoid frequency,Fan hub solenoid frequency,A,20Hz
 3949,Fan hub solenoid frequency,Fan hub solenoid frequency,B,1-3Hz
 3949,Fan hub solenoid frequency,Fan hub solenoid frequency,ZZ,not valid
@@ -6533,7 +6509,6 @@
 3961,Remote vehicle immobiliser,Remote vehicle immobiliser,A,With
 3961,Remote vehicle immobiliser,Remote vehicle immobiliser,B,Prepared
 3961,Remote vehicle immobiliser,Remote vehicle immobiliser,Z,Without
-3966,Tail lift,Tail lift,Z,Without
 3968,Roof air deflector height,Roof air deflector height,A,7 cm
 3968,Roof air deflector height,Roof air deflector height,B,27 cm
 3968,Roof air deflector height,Roof air deflector height,Z,without
@@ -6545,8 +6520,6 @@
 3970,Difrerential lock control,Difrerential lock control,B,button
 3970,Difrerential lock control,Difrerential lock control,C,rotary control
 3970,Difrerential lock control,Difrerential lock control,ZZ,not valid
-3974,Fuel splash protection,Fuel splash protection,A,with
-3974,Fuel splash protection,Fuel splash protection,Z,without
 3979,Battery position,Battery position,A,LHS
 3979,Battery position,Battery position,B,RHS
 3979,Battery position,Battery position,C,rear frame end
@@ -6594,8 +6567,6 @@
 4019,FMS preparation,FMS preparation,Z,without
 4021,Sign box o? delay,Sign box o? delay,A,for 15min
 4021,Sign box o? delay,Sign box o? delay,Z,without
-4022,Delivery degree,Delivery degree,C,"SKD, Semi Knocked Down"
-4022,Delivery degree,Delivery degree,A,"CBU, Completely Build Up"
 4029,Lev adj remote ctrl body build,Lev adj remote ctrl body build,A,truck
 4029,Lev adj remote ctrl body build,Lev adj remote ctrl body build,B,truck+trailer
 4029,Lev adj remote ctrl body build,Lev adj remote ctrl body build,Z,without
