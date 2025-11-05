@@ -20,7 +20,7 @@ set PYTHONUTF8=1
 
 echo Running: py -3 -X faulthandler -u "%TARGET%"
 echo ------------------------------------------------
-python -3 -X faulthandler -u "%TARGET%"
+py -3 -X faulthandler -u "%TARGET%"
 set ERR=%ERRORLEVEL%
 
 echo ------------------------------------------------
