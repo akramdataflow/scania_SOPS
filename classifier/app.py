@@ -1,81 +1,56 @@
-import os
-import sys
-import csv
-import json
-import time
-import shutil
-import subprocess
+# -*- coding: utf-8 -*-
+import os, sys, csv, shutil, time, json, subprocess
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, simpledialog
 import xml.etree.ElementTree as ET
 from pathlib import Path
-import glob
 
-APP_TITLE = "Scania Spec Index (portable, first-run editor link, mapping override, responsive)"
+APP_TITLE = "Scania Spec Index (portable store, editor handoff, normalize paths)"
 
-# ----------------------- Portable paths & config -----------------------
-APP_DIR = Path(__file__).resolve().parent
-DATA_DIR = APP_DIR / "data"
-DATA_DIR.mkdir(parents=True, exist_ok=True)
-
-CONFIG_PATH = APP_DIR / "config.json"
-CONFIG_DEFAULTS = {
-    "editor_path": "",     # Full_SOPS_Editor .py أو .exe
-    "mapping_path": "",    # sops_fpc_mapping.csv (اختياري)
-}
-
-def load_config():
-    cfg = CONFIG_DEFAULTS.copy()
-    if CONFIG_PATH.exists():
+# ===================== Global, portable storage =====================
+def global_store_root() -> str:
+    """Return machine-wide data dir and ensure it exists."""
+    if os.name == "nt":
+        pd = os.environ.get("PROGRAMDATA", r"C:\ProgramData")
+        target = Path(pd) / "ScaniaSpec"
         try:
-            cfg.update(json.loads(CONFIG_PATH.read_text(encoding="utf-8")))
+            target.mkdir(parents=True, exist_ok=True)
+            return str(target)
         except Exception:
-            pass
-    return cfg
+            la = os.environ.get("LOCALAPPDATA", os.path.expanduser(r"~\\AppData\\Local"))
+            target = Path(la) / "ScaniaSpec"
+            target.mkdir(parents=True, exist_ok=True)
+            return str(target)
+    else:
+        base = os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share"))
+        target = Path(base) / "scania_spec"
+        target.mkdir(parents=True, exist_ok=True)
+        return str(target)
 
-def save_config(cfg: dict):
-    try:
-        CONFIG_PATH.write_text(json.dumps(cfg, ensure_ascii=False, indent=2), encoding="utf-8")
-    except Exception as e:
-        messagebox.showerror("Config save error", f"Failed to save config:\n{e}")
-
-# Paths that now live inside app folder (portable)
-CSV_PATH = str(DATA_DIR / "spec_index.csv")
-XML_STORE_DIR = str((DATA_DIR / "stored_xml").resolve())
+GLOBAL_DATA_DIR = global_store_root()
+XML_STORE_DIR   = os.path.join(GLOBAL_DATA_DIR, "stored_xml")
 os.makedirs(XML_STORE_DIR, exist_ok=True)
+CSV_PATH        = os.path.join(GLOBAL_DATA_DIR, "spec_index.csv")
+CONFIG_PATH     = os.path.join(GLOBAL_DATA_DIR, "config.json")
 
-# ----------------------- Mapping candidates (portable-first) -----------------------
-# أولاً: من الإعدادات، ثم بجانب التطبيق، ثم أب التطبيق (scania_SOPS)، ثم أي مكان قريب
-def candidate_mapping_paths():
-    yield load_config().get("mapping_path") or ""
-    yield str(APP_DIR / "sops_fpc_mapping.csv")
-    yield str(APP_DIR.parent / "sops_fpc_mapping.csv")
-    # بحث قريب عن أي ملف بنفس الاسم داخل مجلد المشروع
-    for p in glob.glob(str(APP_DIR.parent / "**" / "sops_fpc_mapping.csv"), recursive=True):
-        yield p
+def xml_abs(path_value: str) -> str:
+    """Resolve absolute path for an XML based on stored value (filename/relative/absolute)."""
+    p = (path_value or "").strip()
+    if not p:
+        return ""
+    if os.path.isabs(p):
+        return p
+    return os.path.join(XML_STORE_DIR, p)
 
-# سنعتمد على الإعدادات + السعي للاكتشاف + متغير البيئة للمحرّر
-def candidate_editor_paths():
-    # 1) متغير بيئة
-    env = os.environ.get("FULL_SOPS_EDITOR")
-    if env:
-        yield env
-    # 2) من الإعدادات
-    cfg = load_config()
-    if cfg.get("editor_path"):
-        yield cfg["editor_path"]
-    # 3) بجوار التطبيق/أب التطبيق: Full_SOPS_Editor*.py أو *.exe
-    patterns = [
-        str(APP_DIR.parent / "Full_SOPS_Editor*.py"),
-        str(APP_DIR / "Full_SOPS_Editor*.py"),
-        str(APP_DIR.parent / "Full_SOPS_Editor*.exe"),
-        str(APP_DIR / "Full_SOPS_Editor*.exe"),
-    ]
-    for pat in patterns:
-        for p in glob.glob(pat):
-            yield p
+# ===================== App-local (mapping & columns) =====================
+# Mapping candidates (keep your originals; no assumptions on their presence)
+MAPPING_CANDIDATES = [
+    r"C:\Users\Kstore\Documents\GitHub\scania_SOPS\sops_fpc_mapping.csv",
+    os.path.join(os.path.expanduser("~"), r"Documents\GitHub\scania_SOPS\sops_fpc_mapping.csv"),
+    os.path.join(os.path.expanduser("~"), r"Documents\GitHub\scania_SOPS\classifier\sops_fpc_mapping.csv"),
+    os.path.join(os.path.dirname(__file__), "sops_fpc_mapping.csv"),
+]
 
-# Remove any columns whose name contains this
 FORBIDDEN_SUBSTR = "environment"
 
 # Fixed fields (Descriptions only)
@@ -85,12 +60,14 @@ FIXED_FIELDS = [
     ("408",   "Engine Version"),
     ("142",   "EngineSize"),
 
+    # Emissions & related additions
     ("2344",  "Immobiliser"),
     ("2409",  "EGR"),
     ("4306",  "NOx sensor"),
     ("4280",  "Exhaust Emission Control"),
     ("2471",  "Emission level"),
 
+    # COO + Gearbox cluster
     ("3113",  "COO"),
     ("3129",  "GearboxECU"),
     ("17",    "Gearbox Type"),
@@ -106,26 +83,91 @@ SHORT_BY_ID  = {}
 DESC_BY_PAIR = {}
 MAPPING_PATH = ""
 
-# ---------- Helpers ----------
+# ===================== Config (first-run editor selection) =====================
+DEFAULT_CONFIG = {
+    "editor_path": ""   # full path to Full_SOPS_Editor*.py
+}
+
+def load_config() -> dict:
+    try:
+        if os.path.exists(CONFIG_PATH):
+            return json.loads(Path(CONFIG_PATH).read_text(encoding="utf-8"))
+    except Exception:
+        pass
+    return dict(DEFAULT_CONFIG)
+
+def save_config(cfg: dict) -> None:
+    try:
+        Path(CONFIG_PATH).write_text(json.dumps(cfg, ensure_ascii=False, indent=2), encoding="utf-8")
+    except Exception as e:
+        messagebox.showwarning("Config", f"Failed to save config:\n{e}")
+
+def ask_editor_path(parent=None) -> str:
+    """Ask user once for the editor .py path, save to config, return path or ''."""
+    messagebox.showinfo(
+        "Choose Editor",
+        "حدد ملف برنامج التعديل Full_SOPS_Editor*.py مرة واحدة، وسيتم حفظ الاختيار."
+    )
+    # Suggest default directory under Documents/GitHub/scania_SOPS
+    initial = os.path.join(os.path.expanduser("~"), "Documents", "GitHub", "scania_SOPS")
+    p = filedialog.askopenfilename(
+        parent=parent,
+        title="Select Editor script (Full_SOPS_Editor*.py)",
+        initialdir=initial if os.path.isdir(initial) else None,
+        filetypes=[("Python", "*.py"), ("All files", "*.*")]
+    )
+    if not p:
+        return ""
+    cfg = load_config()
+    cfg["editor_path"] = p
+    save_config(cfg)
+    return p
+
+def get_editor_path(parent=None) -> str:
+    """Return saved editor path or prompt first time."""
+    cfg = load_config()
+    p = (cfg.get("editor_path") or "").strip()
+    if p and os.path.exists(p):
+        return p
+    # Try auto-discover under scania_SOPS folder in Documents
+    doc_root = os.path.join(os.path.expanduser("~"), "Documents", "GitHub", "scania_SOPS")
+    try:
+        cand = []
+        if os.path.isdir(doc_root):
+            for fn in os.listdir(doc_root):
+                low = fn.lower()
+                if low.startswith("full_sops_editor") and low.endswith(".py"):
+                    cand.append(os.path.join(doc_root, fn))
+        if cand:
+            cand.sort(key=lambda x: os.path.getmtime(x), reverse=True)
+            # Save best guess
+            cfg["editor_path"] = cand[0]
+            save_config(cfg)
+            return cand[0]
+    except Exception:
+        pass
+    # Ask the user
+    return ask_editor_path(parent=parent)
+
+# ===================== Helpers =====================
 def ensure_dirs():
+    # global store already created; nothing else required here
     os.makedirs(XML_STORE_DIR, exist_ok=True)
 
 def local_name(tag: str) -> str:
-    if "}" in tag:
-        return tag.split("}", 1)[1]
-    return tag
+    return tag.split("}", 1)[1] if "}" in tag else tag
 
 def _clean(s: str) -> str:
     return (s or "").strip()
 
 def _is_intlike(s: str) -> bool:
     try:
-        int(str(s).strip())
-        return True
+        int(s.strip()); return True
     except Exception:
         return False
 
 def unique_store_path(original_path: str) -> str:
+    """Return a unique path under XML_STORE_DIR keeping original filename base."""
     base = os.path.basename(original_path)
     name, ext = os.path.splitext(base)
     dest = os.path.join(XML_STORE_DIR, base)
@@ -139,39 +181,9 @@ def unique_store_path(original_path: str) -> str:
         c += 1
     return dest
 
-# ---- Editor discovery (with first-run prompt) ----
-def find_or_prompt_editor(parent: tk.Tk | None = None) -> str:
-    """يحاول إيجاد المحرّر. وإن لم يجده، يطلبه من المستخدم أول مرة ويحفظه في config.json"""
-    # candidates
-    for p in candidate_editor_paths():
-        if p and os.path.exists(p):
-            return p
-
-    # لم يُعثر عليه -> اطلبه من المستخدم
-    message = (
-        "لم أجد ملف المُحرّر (Full_SOPS_Editor).\n"
-        "اختر ملف .py أو .exe الخاص بالمحرّر (مرّة واحدة فقط وسيُحفظ المسار)."
-    )
-    messagebox.showinfo("Select Editor", message, parent=parent)
-    path = filedialog.askopenfilename(
-        title="Select Full_SOPS_Editor (.py or .exe)",
-        filetypes=[("Python or EXE", "*.py *.exe"), ("All files", "*.*")]
-    )
-    if not path:
-        return ""  # المستخدم أغلق الحوار
-
-    if not os.path.exists(path):
-        messagebox.showerror("Invalid path", "المسار الذي اخترته غير موجود.")
-        return ""
-
-    cfg = load_config()
-    cfg["editor_path"] = path
-    save_config(cfg)
-    return path
-
 # ---------- Mapping ----------
 def resolve_mapping_path() -> str:
-    for p in candidate_mapping_paths():
+    for p in MAPPING_CANDIDATES:
         if p and os.path.exists(p):
             return p
     return ""
@@ -185,8 +197,7 @@ def load_mapping():
     try:
         with open(MAPPING_PATH, "r", encoding="utf-8", newline="") as f:
             rows = list(csv.reader(f))
-        if not rows:
-            return
+        if not rows: return
         headers = rows[0]
         norm = {"".join(ch for ch in (h or "").lower() if ch.isalnum()): i for i, h in enumerate(headers)}
         def idx_of(*names):
@@ -259,15 +270,12 @@ def _remove_forbidden(name: str) -> bool:
     return FORBIDDEN_SUBSTR and (FORBIDDEN_SUBSTR.lower() in (name or "").lower())
 
 def compute_csv_columns():
-    """
-    Header = Year + fixed + dynamic (3113..3148 by Short, dedup, no 'environment') + XML_Path.
-    """
     cols = ["Year"]
-
+    # fixed
     for _, col_name in FIXED_FIELDS:
         if not _remove_forbidden(col_name):
             cols.append(col_name)
-
+    # dynamic
     dynamic_labels = []
     seen = set(cols)
     for fid in DYN_RANGE:
@@ -278,7 +286,6 @@ def compute_csv_columns():
             continue
         seen.add(s)
         dynamic_labels.append((fid, s))
-
     cols.extend([label for _, label in dynamic_labels])
     cols.append("XML_Path")
     return cols, dynamic_labels
@@ -312,6 +319,38 @@ def upgrade_csv_if_needed(target_header):
             w.writerow(new_row)
     shutil.move(tmp, CSV_PATH)
 
+# ---------- CSV Normalizer (migrate absolute paths -> filenames) ----------
+def normalize_csv_paths():
+    if not os.path.exists(CSV_PATH):
+        return
+    with open(CSV_PATH, "r", encoding="utf-8", newline="") as f:
+        rdr = csv.DictReader(f)
+        rows = list(rdr)
+        header = rdr.fieldnames
+    if not rows or not header or "XML_Path" not in header:
+        return
+    changed = False
+    for r in rows:
+        p = (r.get("XML_Path", "") or "").strip()
+        if not p:
+            continue
+        if os.path.isabs(p):
+            bn = os.path.basename(p)
+            dest = os.path.join(XML_STORE_DIR, bn)
+            if os.path.exists(p) and not os.path.exists(dest):
+                try:
+                    shutil.copy2(p, dest)
+                except Exception:
+                    pass
+            r["XML_Path"] = bn
+            changed = True
+    if changed:
+        with open(CSV_PATH, "w", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=header)
+            w.writeheader()
+            for r in rows:
+                w.writerow(r)
+
 # ---------- Build & save ----------
 def build_record(xml_path: str, year: str, stored_xml_path: str, dynamic_labels):
     fpc_map = parse_fpc_map(xml_path)
@@ -334,7 +373,8 @@ def build_record(xml_path: str, year: str, stored_xml_path: str, dynamic_labels)
         code = fpc_map.get(fpc_id, "")
         rec[col_label] = meaning_for(fpc_id, code)
 
-    rec["XML_Path"] = stored_xml_path
+    # store filename only (portable)
+    rec["XML_Path"] = os.path.basename(stored_xml_path)
     return rec
 
 def append_record(rec, header):
@@ -414,16 +454,7 @@ class App(tk.Tk):
 
         self.header, self.dynamic_labels = compute_csv_columns()
         upgrade_csv_if_needed(self.header)
-
-        # Menu (settings)
-        menubar = tk.Menu(self)
-        settings_menu = tk.Menu(menubar, tearoff=0)
-        settings_menu.add_command(label="Change Editor Path…", command=self.change_editor_path)
-        settings_menu.add_command(label="Change Mapping CSV…", command=self.change_mapping_path)
-        settings_menu.add_separator()
-        settings_menu.add_command(label="Open Data Folder", command=self.open_data_folder)
-        menubar.add_cascade(label="Settings", menu=settings_menu)
-        self.config(menu=menubar)
+        normalize_csv_paths()  # migrate old paths once
 
         # Top bar
         top = ttk.Frame(self, padding=8)
@@ -433,11 +464,14 @@ class App(tk.Tk):
         ttk.Button(top, text="Refresh", command=self.refresh_table).pack(side="left", padx=(8, 0))
         ttk.Button(top, text="Search…", command=self.open_search_window).pack(side="left", padx=(8, 0))
 
-        # Mapping status
-        map_status = MAPPING_PATH if MAPPING_PATH else "NOT SET (meanings will be blank)"
-        self.map_status_var = tk.StringVar(value=f"Mapping: {map_status}")
-        ttk.Label(top, textvariable=self.map_status_var).pack(side="left", padx=(16, 0))
-        ttk.Button(top, text="Set Mapping…", command=self.change_mapping_path).pack(side="left", padx=(6,0))
+        # Settings menu (Change editor / Normalize / Open data dir)
+        menuf = ttk.Menubutton(top, text="Settings")
+        menu = tk.Menu(menuf, tearoff=0)
+        menu.add_command(label="Change Editor Path…", command=self.on_change_editor_path)
+        menu.add_command(label="Normalize CSV Paths Now", command=normalize_csv_paths)
+        menu.add_command(label="Open Data Folder", command=lambda: os.startfile(GLOBAL_DATA_DIR) if os.name=="nt" else None)
+        menuf["menu"] = menu
+        menuf.pack(side="left", padx=(8,0))
 
         # Filter
         ttk.Label(top, text="Filter:").pack(side="left", padx=(16, 4))
@@ -446,14 +480,14 @@ class App(tk.Tk):
         ent.pack(side="left")
         ent.bind("<KeyRelease>", lambda e: self.apply_filter())
 
-        # Editor actions (right)
+        # Right-side actions
         ttk.Button(top, text="Open in Editor", command=self.open_in_editor).pack(side="right", padx=(8, 0))
         ttk.Button(top, text="Copy Selected to Downloads", command=self.copy_selected).pack(side="right")
 
         # Treeview
-        self.visible_columns = []      # computed after loading rows (no XML_Path)
+        self.visible_columns = []
         self.tree = ttk.Treeview(self, columns=(), show="headings")
-        self.row_by_iid = {}           # iid -> full record (for hidden XML_Path)
+        self.row_by_iid = {}
 
         vsb = ttk.Scrollbar(self, orient="vertical", command=self.tree.yview)
         hsb = ttk.Scrollbar(self, orient="horizontal", command=self.tree.xview)
@@ -463,82 +497,31 @@ class App(tk.Tk):
         vsb.pack(fill="y", side="right")
         hsb.pack(fill="x", side="bottom")
 
-        # Auto-fit on resize
         self.bind("<Configure>", lambda e: self.auto_fit_columns())
 
-        # Search criteria (single choice per column)
         self.search_criteria = {}
-
-        # First-run: ensure editor path
-        self.ensure_editor_path()
-
         self.all_rows = []
         self.refresh_table()
 
-    # ----- Settings actions -----
-    def open_data_folder(self):
-        folder = str(DATA_DIR)
-        try:
-            if sys.platform.startswith("win"):
-                os.startfile(folder)
-            elif sys.platform == "darwin":
-                subprocess.Popen(["open", folder])
-            else:
-                subprocess.Popen(["xdg-open", folder])
-        except Exception as e:
-            messagebox.showerror("Open folder", f"Failed to open folder:\n{e}")
+        # Prepare editor path (first-run prompt if needed)
+        _ = get_editor_path(parent=self)
 
-    def change_editor_path(self):
-        path = filedialog.askopenfilename(
-            title="Select Full_SOPS_Editor (.py or .exe)",
-            filetypes=[("Python or EXE", "*.py *.exe"), ("All files", "*.*")]
-        )
-        if not path:
-            return
-        if not os.path.exists(path):
-            messagebox.showerror("Invalid", "المسار غير موجود.")
-            return
-        cfg = load_config()
-        cfg["editor_path"] = path
-        save_config(cfg)
-        messagebox.showinfo("Saved", "تم حفظ مسار المُحرّر.")
-
-    def change_mapping_path(self):
-        path = filedialog.askopenfilename(
-            title="Select sops_fpc_mapping.csv",
-            filetypes=[("CSV", "*.csv"), ("All files", "*.*")]
-        )
-        if not path:
-            return
-        if not os.path.exists(path):
-            messagebox.showerror("Invalid", "المسار غير موجود.")
-            return
-        cfg = load_config()
-        cfg["mapping_path"] = path
-        save_config(cfg)
-        load_mapping()
-        self.map_status_var.set(f"Mapping: {MAPPING_PATH or 'NOT SET'}")
-        self.refresh_table()
-
-    def ensure_editor_path(self):
-        ep = find_or_prompt_editor(self)
-        if not ep:
-            messagebox.showwarning("Editor missing", "لن يعمل زر Open in Editor بدون تحديد مسار المُحرّر.")
-        # لا حاجة لتغيير أي شيء آخر—المسار محفوظ في config
+    # ----- Settings handlers -----
+    def on_change_editor_path(self):
+        p = ask_editor_path(parent=self)
+        if p:
+            messagebox.showinfo("Editor", f"Editor path set:\n{p}")
 
     # ----- Visible columns -----
     def compute_visible_columns(self, rows):
         fixed_names = [name for _, name in FIXED_FIELDS if not _remove_forbidden(name)]
         must_keep = {"Year"} | set(fixed_names)
-
         cols = [c for c in self.header if c != "XML_Path" and not _remove_forbidden(c)]
-
         nonempty = {c: False for c in cols}
         for r in rows:
             for c in cols:
                 if (r.get(c) or "").strip():
                     nonempty[c] = True
-
         visible = []
         for c in cols:
             if c in must_keep or nonempty[c]:
@@ -564,16 +547,14 @@ class App(tk.Tk):
         avail = max(200, tree_w - vertical_bar_width - padding)
         weights = {c: 1 for c in self.visible_columns}
         for c in ("Engine Version", "Exhaust Emission Control"):
-            if c in weights:
-                weights[c] = 2
+            if c in weights: weights[c] = 2
         total_weight = sum(weights.values()) or 1
         min_widths = {c: 80 for c in self.visible_columns}
         for c in ("Engine Version","EngineECU","EngineSize","GearboxECU","Gearbox Type","Exhaust Emission Control"):
             if c in min_widths:
                 min_widths[c] = 120
         remaining = avail - sum(min_widths.get(c, 0) for c in self.visible_columns)
-        if remaining < 0:
-            remaining = 0
+        if remaining < 0: remaining = 0
         for c in self.visible_columns:
             portion = (weights[c] / total_weight)
             extra = int(remaining * portion)
@@ -632,19 +613,15 @@ class App(tk.Tk):
 
     def apply_filter(self):
         rows = list(self.all_rows)
-
         if self.search_criteria:
             filtered = []
             for r in rows:
                 ok = True
                 for col, val in self.search_criteria.items():
                     if (r.get(col, "") or "") != val:
-                        ok = False
-                        break
-                if ok:
-                    filtered.append(r)
+                        ok = False; break
+                if ok: filtered.append(r)
             rows = filtered
-
         q = (self.filter_var.get() or "").strip().lower()
         if q:
             filtered = []
@@ -653,7 +630,6 @@ class App(tk.Tk):
                 if q in row_text:
                     filtered.append(r)
             rows = filtered
-
         self.render_rows(rows)
 
     def copy_selected(self):
@@ -666,7 +642,7 @@ class App(tk.Tk):
         copied = 0
         for iid in sel:
             row = self.row_by_iid.get(iid, {})
-            xml_path = row.get("XML_Path", "")
+            xml_path = xml_abs(row.get("XML_Path", ""))
             if not xml_path or not os.path.exists(xml_path):
                 messagebox.showwarning("Missing file", f"Stored XML path not found:\n{xml_path}")
                 continue
@@ -684,7 +660,6 @@ class App(tk.Tk):
         if copied:
             messagebox.showinfo("Copied", f"Copied {copied} file(s) to Downloads.")
 
-    # ---- Open selected XML in the Editor ----
     def open_in_editor(self):
         sel = self.tree.selection()
         if not sel:
@@ -692,27 +667,25 @@ class App(tk.Tk):
             return
         if len(sel) > 1:
             messagebox.showinfo(APP_TITLE, "سيتم فتح أوّل صف محدّد فقط.")
-
         row = self.row_by_iid.get(sel[0], {})
-        xml_path = row.get("XML_Path", "")
+        xml_path = xml_abs(row.get("XML_Path", ""))
         if not xml_path or not os.path.exists(xml_path):
             messagebox.showerror("Missing file", f"Stored XML not found:\n{xml_path}")
             return
 
-        editor_path = find_or_prompt_editor(self)
-        if not editor_path:
+        editor_path = get_editor_path(parent=self)
+        if not editor_path or not os.path.exists(editor_path):
+            messagebox.showerror("Editor not found", "لم أجد برنامج التعديل.\nاختره من Settings → Change Editor Path…")
+            return
+
+        py = sys.executable or shutil.which("python") or shutil.which("py")
+        if not py:
+            messagebox.showerror("Python not found", "تعذر العثور على Python لتشغيل المُحرّر.")
             return
 
         try:
-            # إذا كان .exe نشغّله مباشرة، إذا كان .py نشغّله عبر بايثون
-            if editor_path.lower().endswith(".exe"):
-                subprocess.Popen([editor_path, "--open", xml_path, "--analyze"], close_fds=True)
-            else:
-                py = sys.executable or shutil.which("python") or shutil.which("py")
-                if not py:
-                    messagebox.showerror("Python not found", "لم أستطع العثور على Python لتشغيل المُحرّر (.py).")
-                    return
-                subprocess.Popen([py, editor_path, "--open", xml_path, "--analyze"], close_fds=True)
+            # The editor must support --open <file> --analyze (see Section 2)
+            subprocess.Popen([py, editor_path, "--open", xml_path, "--analyze"], close_fds=True)
         except Exception as e:
             messagebox.showerror("Launch failed", f"فشل تشغيل المُحرّر:\n{e}")
 
