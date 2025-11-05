@@ -2,12 +2,23 @@
 # -*- coding: utf-8 -*-
 
 """
-full sops editor — READY v8.12 (compact preview, Euro6 bulk-select)
-- Preview shows: FPC_ID, LONG, CODE, DESCRIPTION
-- CODE/DESCRIPTION displayed as "Before → After" when changed
-- "adblue euro 6 fix" uses exact user mapping and auto-selects all affected rows present
+Full SOPS Parameter Editor — v8.14 EN (Red Save)
+- Adds new Modify actions:
+  • adblue remove
+  • add clutch pedal
+  • ADD PTO AS
+  • Add PTO TMS
+  • add PTO
+  • ECO & Power & Standard
+  • EGR
+  • OPC4 to manual
+  • OPC5 TO manual
+  • Remove tag Axle Steering  (supports deleting parameters)
+- "Disable SMS" now also updates FPC 3663 → Z (and 3135 → Z)
+- All Modify actions INSERT missing FPCs in numeric order on Save
+- Supports REMOVING selected FPCs from XML on Save (for actions that require deletion)
 """
-
+import argparse
 import os, re, csv, traceback, sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
@@ -17,8 +28,8 @@ from datetime import datetime
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
-APP_TITLE = "Full SOPS Parameter Editor — v8.13 EN (Red Save)"
-APP_GEOM  = "1200x680"
+APP_TITLE = "Full SOPS Parameter Editor — v8.14 EN (Red Save)"
+APP_GEOM  = "1200x700"
 
 # ================== Fixed controller lists ==================
 ENGINE_LIST  = [11, 32, 2250, 142, 408, 3127]
@@ -36,7 +47,10 @@ PLACE_BRAKE    = [27, 125, 1255, 5848, 5909, 4551, 3875, 3874, 3872, 3759, 3478,
 PLACE_APS      = [9701]
 PLACE_BWE      = [9801, 9802]
 PLACE_BWS      = [9901]
-PLACE_PTO      = [3203, 3204, 3205, 3462, 3468, 3469, 3498, 3514, 3515, 3543, 3544, 3545, 3853, 3877, 3896, 4303, 4787, 5877, 5950, 5951, 7623]
+PLACE_PTO      = [3203, 3204, 3205, 3462, 3468, 3469, 3498, 3514, 3515, 3543, 3544, 3545, 3853, 3877, 3896, 4303, 4787, 5877, 5950, 5951, 7623,
+                  # added PTO-related IDs used by new actions:
+                  3502, 3854, 5753, 5664, 5666, 5959, 4304]
+
 PLACE_EGR      = [2409, 2471, 3636, 3782]
 PLACE_LAS      = [9808]
 
@@ -380,22 +394,6 @@ def _format_env_report(mapping_path: Optional[str], mapping_desc, mapping_long, 
     return "\n".join(lines)
 
 # ========================= GUI =========================
-
-# ---------- custom packs (editable) ----------
-CUSTOM_PACKS = {
-    "custom pack 1": {2409: "Z", 3459: "Z", 3636: "Z"},
-    "custom pack 2": {2471: "A", 3719: "Z"},
-    "custom pack 3": {4149: "Z", 4295: "Z", 4374: "Z"},
-    "custom pack 4": {4280: "A", 4290: "B"},
-    "custom pack 5": {2331592: "Z", 2331593: "Z"},
-    "custom pack 6": {2402250: "A"},
-    "custom pack 7": {2200001: "B", 2200002: "C"},
-    "custom pack 8": {3456: "Z", 3476: "Z", 3488: "Z"},
-    "custom pack 9": {3510: "A", 3511: "A"},
-    "custom pack 10": {3600: "Z", 3610: "Z", 3620: "Z"},
-}
-
-
 class App(ttk.Frame):
     def __init__(self, master: tk.Tk) -> None:
         super().__init__(master)
@@ -407,6 +405,9 @@ class App(ttk.Frame):
         self.rows_all: List[Tuple[Any, Any, Any, Any, Any, Any]] = []
         self.modified_codes: Dict[int, str] = {}
         self._typing_job: Optional[str] = None
+        # NEW: hold FPCs that need to be inserted / deleted in XML on save
+        self.pending_new_fpcs: Dict[int, str] = {}
+        self.pending_delete_fpcs: set[int] = set()
 
         # Theme
         style = ttk.Style()
@@ -418,28 +419,30 @@ class App(ttk.Frame):
 
         self._apply_styles(style)
         
-        # --- Display labels → internal action keys (edit labels freely) ---
+        # --- Display labels → internal action keys ---
         self._modify_display_to_key = {
-            "AdBlue Euro 5 Off":        "adblue euro 5 fix",
-            "AdBlue Euro 6 Off":        "adblue euro 6 fix",
-            "IMMO off":                 "immo fix",
-            "Disable SMS":              "sms disable",
-            "Disable Retarder":         "retarder disable",
-            "Clutch Off":               "clutch off",
-            "PTO Type":                 "pto type",
-            "Cylinder Off Match Off":   "cylinder off match off",
-            "ESS Off":                  "ess off",
-            "Flight Mode Off":          "flight off",
-            "Custom Pack 1":            "custom pack 1",
-            "Custom Pack 2":            "custom pack 2",
-            "Custom Pack 3":            "custom pack 3",
-            "Custom Pack 4":            "custom pack 4",
-            "Custom Pack 5":            "custom pack 5",
-            "Custom Pack 6":            "custom pack 6",
-            "Custom Pack 7":            "custom pack 7",
-            "Custom Pack 8":            "custom pack 8",
-            "Custom Pack 9":            "custom pack 9",
-            "Custom Pack 10":           "custom pack 10",
+            # Existing
+            "adblue remove":                 "adblue remove",
+            "add clutch pedal":              "add clutch pedal",
+            "AdBlue Euro 5 Off":             "adblue euro 5 fix",
+            "AdBlue Euro 6 Off":             "adblue euro 6 fix",
+            "IMMO off":                      "immo fix",
+            "Disable SMS":                   "sms disable",
+            "Disable Retarder":              "retarder disable",
+            "Clutch Off":                    "clutch off",
+            "PTO Type":                      "pto type",
+            "Cylinder Off Match Off":        "cylinder off match off",
+            "ESS Off":                       "ess off",
+            "Flight Mode Off":               "flight off",
+            # New actions (this request)
+            "ADD PTO AS":                    "add pto as",
+            "Add PTO TMS":                   "add pto tms",
+            "add PTO":                       "add pto",
+            "ECO & Power & Standard":        "eco power standard",
+            "EGR":                           "egr",
+            "OPC4 to manual":                "opc4 to manual",
+            "OPC5 TO manual":                "opc5 to manual",
+            "Remove tag Axle Steering":      "remove axle steering",
         }
 
         # Default parameters for placeholder actions
@@ -459,29 +462,30 @@ class App(ttk.Frame):
         self.pending_vin_full = None
         self.pending_vin_short = None
 
-
-        # Modify actions
+        # Modify actions registry
         self._modify_registry = {
-            "adblue euro 5 fix":        self._action_adblue_euro5_fix,
-            "adblue euro 6 fix":        self._action_adblue_euro6_fix,
-            "immo fix":                 self._action_immo_fix,
-            "sms disable":              self._action_sms_disable,
-            "retarder disable":         self._action_retarder_disable,
-            "clutch off":               self._action_clutch_off,
-            "pto type":                 self._action_pto_type,
-            "cylinder off match off":   self._action_cyl_off_match_off,
-            "ess off":                  self._action_ess_off,
-            "flight off":               self._action_flight_off,
-            "custom pack 1":            lambda: self._run_custom_pack("custom pack 1"),
-            "custom pack 2":            lambda: self._run_custom_pack("custom pack 2"),
-            "custom pack 3":            lambda: self._run_custom_pack("custom pack 3"),
-            "custom pack 4":            lambda: self._run_custom_pack("custom pack 4"),
-            "custom pack 5":            lambda: self._run_custom_pack("custom pack 5"),
-            "custom pack 6":            lambda: self._run_custom_pack("custom pack 6"),
-            "custom pack 7":            lambda: self._run_custom_pack("custom pack 7"),
-            "custom pack 8":            lambda: self._run_custom_pack("custom pack 8"),
-            "custom pack 9":            lambda: self._run_custom_pack("custom pack 9"),
-            "custom pack 10":           lambda: self._run_custom_pack("custom pack 10"),
+            "adblue remove":             self._action_adblue_remove,
+            "add clutch pedal":          self._action_add_clutch_pedal,
+            "adblue euro 5 fix":         self._action_adblue_euro5_fix,
+            "adblue euro 6 fix":         self._action_adblue_euro6_fix,
+            "immo fix":                  self._action_immo_fix,
+            "sms disable":               self._action_sms_disable,      # updated (adds 3663)
+            "retarder disable":          self._action_retarder_disable,
+            "clutch off":                self._action_clutch_off,
+            "pto type":                  self._action_pto_type,
+            "cylinder off match off":    self._action_cyl_off_match_off,
+            "ess off":                   self._action_ess_off,
+            "flight off":                self._action_flight_off,
+
+            # New ones
+            "add pto as":                self._action_add_pto_as,
+            "add pto tms":               self._action_add_pto_tms,
+            "add pto":                   self._action_add_pto,
+            "eco power standard":        self._action_eco_power_standard,
+            "egr":                       self._action_egr,
+            "opc4 to manual":            self._action_opc4_to_manual,
+            "opc5 to manual":            self._action_opc5_to_manual,
+            "remove axle steering":      self._action_remove_axle_steering,
         }
 
         try:
@@ -507,7 +511,7 @@ class App(ttk.Frame):
     # --- UI construction ---
     def _build_ui(self) -> None:
         top = ttk.Frame(self.master, padding=(8, 6, 8, 4))
-        # Style for Clear button (red accent)
+        # Styles
         style = ttk.Style()
         try:
             style.configure("Accent.TButton",
@@ -519,8 +523,6 @@ class App(ttk.Frame):
                       relief=[("pressed", "sunken")])
         except Exception:
             pass
-
-        # Unified button styles
         try:
             style.configure("Primary.TButton",
                             padding=(10, 4),
@@ -530,24 +532,19 @@ class App(ttk.Frame):
                             font=("Segoe UI", 9))
         except Exception:
             pass
-
-        # Bottom-right buttons styles (green Clear, red Exit)
         try:
             style.configure("Clear.TButton",
                             foreground="white",
                             background="#28a745",
                             font=("Segoe UI", 9, "bold"),
                             padding=(10,4))
-            style.map("Clear.TButton",
-                      background=[("active", "#218838")])
-
+            style.map("Clear.TButton", background=[("active", "#218838")])
             style.configure("Exit.TButton",
                             foreground="white",
                             background="#dc3545",
                             font=("Segoe UI", 9, "bold"),
                             padding=(10,4))
-            style.map("Exit.TButton",
-                      background=[("active", "#c82333")])
+            style.map("Exit.TButton", background=[("active", "#c82333")])
         except Exception:
             pass
 
@@ -566,7 +563,7 @@ class App(ttk.Frame):
             top,
             textvariable=self.var_modify,
             state="readonly",
-            width=24,
+            width=26,
             values=["— select action —"] + list(self._modify_display_to_key.keys()),
         )
         self.cmb_modify.pack(side="left", padx=(0,10))
@@ -594,7 +591,6 @@ class App(ttk.Frame):
         cols = ("fpc_id","long","code","description")
         headers = ("FPC_ID","LONG","CODE","DESCRIPTION")
         self.tree = ttk.Treeview(left, columns=cols, show="headings", height=18, selectmode="extended")
-        # highlight modified rows in red
         self.tree.tag_configure("modified", foreground="red")
         for c, label in zip(cols, headers):
             self.tree.heading(c, text=label, anchor="center")
@@ -621,7 +617,7 @@ class App(ttk.Frame):
         editor.pack(fill="x")
         ttk.Label(editor, text="Parameter Editor", font=("Segoe UI", 11, "bold")).pack(anchor="w", pady=(0,6))
 
-        # VIN area (button + readonly entry + CHANGE + Copy)
+        # VIN area
         vin_area = ttk.Frame(right); vin_area.pack(fill="x", pady=(0,8))
         ttk.Button(vin_area, text="VIN", command=self.on_read_vin, style="Secondary.TButton").pack(side="left", padx=(4,0))
         self.var_vin = tk.StringVar(value="")
@@ -661,30 +657,24 @@ class App(ttk.Frame):
         self.var_a_code = tk.StringVar(); self.var_a_desc = tk.StringVar(); self.var_a_long = tk.StringVar()
 
         logf = ttk.Frame(self.master, padding=(8, 0, 8, 6))
-        # logf.pack(fill="both", expand=False)
-        self.txt = tk.Text(logf, height=6, bg="#101315", fg="#a7ffb5", insertbackground="white", font=("Consolas", 10), borderwidth=0, highlightthickness=0)
+        self.txt = tk.Text(logf, height=6, bg="#101315", fg="#a7ffb5", insertbackground="white",
+                           font=("Consolas", 10), borderwidth=0, highlightthickness=0)
         self.txt.pack(fill="both", expand=True)
 
-        
-        # bottom action bar placed above the status line
         def __quick_clear():
-            # minimal clear to start fresh
             try:
                 for item in self.tree.get_children():
                     self.tree.delete(item)
             except Exception:
                 pass
-            # clear right pane fields if present
-            for var in ("var_vin","var_fpc_id","var_code_cur","var_code_opt","var_b_code","var_b_desc","var_b_long","var_a_code","var_a_desc","var_a_long"):
+            for varname in ("var_vin","var_fpc","var_code_cur","var_code_new",
+                            "var_b_code","var_b_desc","var_b_long","var_a_code","var_a_desc","var_a_long"):
                 try:
-                    getattr(self, var).set("")
+                    getattr(self, varname).set("")
                 except Exception:
                     pass
-            # clear log
             try:
-                self._log_area.configure(state="normal")
-                self._log_area.delete("1.0", "end")
-                self._log_area.configure(state="disabled")
+                self.txt.delete("1.0", "end")
             except Exception:
                 pass
             self.xml_path = None
@@ -692,6 +682,8 @@ class App(ttk.Frame):
             self.modified_codes = {}
             self.pending_vin_full = None
             self.pending_vin_short = None
+            self.pending_new_fpcs.clear()
+            self.pending_delete_fpcs.clear()
             self._log("[INFO] Cleared.")
 
         bottom_frame = ttk.Frame(self.master)
@@ -706,7 +698,7 @@ class App(ttk.Frame):
 
         self.master.after(0, self._update_preview)
 
-    # ---------- helpers ----------
+    # ---------- context menu ----------
     def _popup(self, event):
         try:
             self.menu.tk_popup(event.x_root, event.y_root, 0)
@@ -754,80 +746,254 @@ class App(ttk.Frame):
             except Exception as e:
                 self._log(f"[ERROR] Modify '{choice}': {e}")
 
-    # ----- Placeholder actions -----
-    def _action_adblue_euro5_fix(self): self._log("[ACTION] adblue euro 5 fix (placeholder)")
+    # ----- Actions (all with INSERT ability; some with DELETE) -----
+    def _action_adblue_remove(self):
+        mapping = {2471: 'A', 3459: 'Z', 3476: 'Z', 3488: 'Z', 3636: 'Z', 3719: 'Z'}
+        if not self.rows_all: self._log("[EDIT] No data loaded. Please Analyze first."); return
+        self._bulk_preview_apply_insert_delete(mapping, "adblue remove")
 
-    
+    def _action_add_clutch_pedal(self):
+        mapping = {3575: 'A', 3517: 'Z', 4099: 'Z'}
+        if not self.rows_all: self._log("[EDIT] No data loaded. Please Analyze first."); return
+        self._bulk_preview_apply_insert_delete(mapping, "add clutch pedal")
+
+    def _action_adblue_euro5_fix(self):
+        mapping = {2471: 'A', 3459: 'Z', 3476: 'Z', 3488: 'Z', 3636: 'Z', 3719: 'Z'}
+        if not self.rows_all: self._log("[EDIT] No data loaded. Please Analyze first."); return
+        self._bulk_preview_apply_insert_delete(mapping, "adblue euro 5 fix")
+
     def _action_adblue_euro6_fix(self):
-        """Preview-first Euro6 mapping: target A for all mapped IDs; 2471 stays A."""
-        mapping = {
-    2471: 'A',   # Emission level stays A
-    3459: 'Z',
-    3476: 'Z',
-    3488: 'Z',
-    3636: 'Z',
-    3719: 'Z',
-    4149: 'Z',
-    4295: 'Z',
-    4374: 'Z',
-}
-        if not self.rows_all:
-            self._log("[EDIT] No data loaded. Please Analyze first."); return
-        self._bulk_preview_and_apply(mapping, "adblue euro 6 fix")
-
-    
+        mapping = {2471: 'A', 3459: 'Z', 3476: 'Z', 3488: 'Z', 3636: 'Z', 3719: 'Z', 4149: 'Z', 4295: 'Z', 4374: 'Z'}
+        if not self.rows_all: self._log("[EDIT] No data loaded. Please Analyze first."); return
+        self._bulk_preview_apply_insert_delete(mapping, "adblue euro 6 fix")
 
     def _action_immo_fix(self):
-        mapping = {
-            2344: 'Z'}
-        if not self.rows_all:
-            self._log("[EDIT] No data loaded. Please Analyze first."); return
-        self._bulk_preview_and_apply(mapping, "immo_fix")
+        mapping = {2344: 'Z'}
+        if not self.rows_all: self._log("[EDIT] No data loaded. Please Analyze first."); return
+        self._bulk_preview_apply_insert_delete(mapping, "immo fix")
 
-        
-    def _action_sms_disable(self):
-        mapping = {
-            3135: 'Z'}
-        if not self.rows_all:
-            self._log("[EDIT] No data loaded. Please Analyze first."); return
-        self._bulk_preview_and_apply(mapping, "sms_disable")
+    def _action_sms_disable(self):  # UPDATED to also set 3663: Z
+        mapping = {3135: 'Z', 3663: 'Z'}
+        if not self.rows_all: self._log("[EDIT] No data loaded. Please Analyze first."); return
+        self._bulk_preview_apply_insert_delete(mapping, "sms disable")
+
     def _action_retarder_disable(self):
         mapping = self._default_params.get("retarder disable", {})
-        if mapping: self._bulk_preview_and_apply(mapping, "retarder disable")
-        else: self._log("[ACTION] retarder disable (no defaults set)")
-
+        if not mapping: self._log("[ACTION] retarder disable (no defaults set)"); return
+        self._bulk_preview_apply_insert_delete(mapping, "retarder disable")
 
     def _action_clutch_off(self):
         mapping = self._default_params.get("clutch off", {})
-        if mapping: self._bulk_preview_and_apply(mapping, "clutch off")
-        else: self._log("[ACTION] clutch off (no defaults set)")
-
+        if not mapping: self._log("[ACTION] clutch off (no defaults set)"); return
+        self._bulk_preview_apply_insert_delete(mapping, "clutch off")
 
     def _action_pto_type(self):
         mapping = self._default_params.get("pto type", {})
-        if mapping: self._bulk_preview_and_apply(mapping, "pto type")
-        else: self._log("[ACTION] pto type (no defaults set)")
+        if not mapping: self._log("[ACTION] pto type (no defaults set)"); return
+        self._bulk_preview_apply_insert_delete(mapping, "pto type")
 
-        
     def _action_cyl_off_match_off(self):
         mapping = self._default_params.get("cylinder off match off", {})
-        if mapping: self._bulk_preview_and_apply(mapping, "cylinder off match off")
-        else: self._log("[ACTION] cylinder off match off (no defaults set)")
+        if not mapping: self._log("[ACTION] cylinder off match off (no defaults set)"); return
+        self._bulk_preview_apply_insert_delete(mapping, "cylinder off match off")
+
     def _action_ess_off(self):
         mapping = self._default_params.get("ess off", {})
-        if mapping: self._bulk_preview_and_apply(mapping, "ess off")
-        else: self._log("[ACTION] ess off (no defaults set)")
+        if not mapping: self._log("[ACTION] ess off (no defaults set)"); return
+        self._bulk_preview_apply_insert_delete(mapping, "ess off")
+
     def _action_flight_off(self):
         mapping = self._default_params.get("flight off", {})
-        if mapping: self._bulk_preview_and_apply(mapping, "flight off")
-        else: self._log("[ACTION] flight off (no defaults set)")
+        if not mapping: self._log("[ACTION] flight off (no defaults set)"); return
+        self._bulk_preview_apply_insert_delete(mapping, "flight off")
 
+    # -------- NEW REQUESTED ACTIONS --------
+    def _action_add_pto_as(self):
+        mapping = {3502:'C', 3204:'C', 3514:'Z', 3854:'A', 3877:'A'}
+        if not self.rows_all: self._log("[EDIT] No data loaded. Please Analyze first."); return
+        self._bulk_preview_apply_insert_delete(mapping, "ADD PTO AS")
+
+    def _action_add_pto_tms(self):
+        mapping = {3502:'C', 5950:'A', 5753:'A', 3877:'A', 5664:'A', 5666:'A', 5877:'A', 5959:'A'}
+        if not self.rows_all: self._log("[EDIT] No data loaded. Please Analyze first."); return
+        self._bulk_preview_apply_insert_delete(mapping, "Add PTO TMS")
+
+    def _action_add_pto(self):
+        # 3514 appears twice in the request; last one ('Z') will win (as in dict below)
+        mapping = {3514:'Z', 3204:'C', 4304:'A'}
+        if not self.rows_all: self._log("[EDIT] No data loaded. Please Analyze first."); return
+        self._bulk_preview_apply_insert_delete(mapping, "add PTO")
+
+    def _action_eco_power_standard(self):
+        mapping = {5107:'A', 5112:'A', 5169:'A'}
+        if not self.rows_all: self._log("[EDIT] No data loaded. Please Analyze first."); return
+        self._bulk_preview_apply_insert_delete(mapping, "ECO & Power & Standard")
+
+    def _action_egr(self):
+        mapping = {5107:'A', 5112:'A', 5169:'A'}
+        if not self.rows_all: self._log("[EDIT] No data loaded. Please Analyze first."); return
+        self._bulk_preview_apply_insert_delete(mapping, "EGR")
+
+    def _action_opc4_to_manual(self):
+        mapping = {2519:'Z', 3617:'Z', 3129:'Z'}
+        if not self.rows_all: self._log("[EDIT] No data loaded. Please Analyze first."); return
+        self._bulk_preview_apply_insert_delete(mapping, "OPC4 to manual")
+
+    def _action_opc5_to_manual(self):
+        mapping = {3129:'Z', 2519:'Z', 3575:'A', 3517:'Z', 4099:'Z', 3899:'A', 3617:'Z', 3869:'A'}
+        if not self.rows_all: self._log("[EDIT] No data loaded. Please Analyze first."); return
+        self._bulk_preview_apply_insert_delete(mapping, "OPC5 TO manual")
+
+    def _action_remove_axle_steering(self):
+        # "remove" indicates these FPCs must be deleted from XML (if present)
+        mapping = {5688:'remove', 5413:'remove'}
+        if not self.rows_all: self._log("[EDIT] No data loaded. Please Analyze first."); return
+        self._bulk_preview_apply_insert_delete(mapping, "Remove tag Axle Steering")
+
+    # ----- Preview+Apply with INSERT & DELETE -----
+    def _bulk_preview_apply_insert_delete(self, mapping: dict[int, str], title: str):
+        """
+        - For normal values (e.g., 'A','Z','C'): preview and set code; insert if missing.
+        - For deletion requests: value string 'remove' (case-insensitive) means delete FPC if present.
+        """
+        import tkinter as tk
+        from tkinter import ttk, messagebox
+
+        all_rows = self.rows_all or []
+        id_to_idx = {int(r[0]): i for i, r in enumerate(all_rows)}
+        preview_rows = []  # (fid, long, code_before→after, desc_before→after, op_kind, tgt_code_or_none, is_new/was_present)
+
+        for fid, raw in mapping.items():
+            is_remove = isinstance(raw, str) and raw.strip().lower() == "remove"
+            idx = id_to_idx.get(fid)
+
+            if is_remove:
+                if idx is None:
+                    # not present, nothing to delete; still show informative line
+                    long_after = self.mapping_long.get(fid, "")
+                    preview_rows.append((fid, long_after, "— → — (not present)", "", "delete:noop", None, False))
+                else:
+                    fid0, long0, code_before, desc_before, _upd, _mark = all_rows[idx]
+                    code_ba = f"{code_before} → — (remove)"
+                    preview_rows.append((fid0, long0, code_ba, desc_before or "", "delete", None, True))
+                continue
+
+            # SET value path:
+            tgt = str(raw)
+            if idx is None:
+                long_after, desc_after = resolve_long_and_desc(self.mapping_desc, self.mapping_long, fid, tgt)
+                code_ba = f"— → {tgt}"  # was missing
+                desc_ba = desc_after or ""
+                preview_rows.append((fid, long_after, code_ba, desc_ba, "insert", tgt, True))
+            else:
+                fid0, long0, code_before, desc_before, upd0, _mark = all_rows[idx]
+                long_after, desc_after = resolve_long_and_desc(self.mapping_desc, self.mapping_long, fid0, tgt)
+                long_used = long0 or long_after
+                code_ba = f"{code_before} → {tgt}" if str(code_before) != str(tgt) else str(code_before)
+                desc_ba = (f"{desc_before} → {desc_after}" if desc_after and desc_after != desc_before
+                           else (desc_before or desc_after or ""))
+                preview_rows.append((fid0, long_used, code_ba, desc_ba, "update", tgt, False))
+
+        if not preview_rows:
+            messagebox.showinfo(APP_TITLE, "Nothing to preview."); return
+
+        win = tk.Toplevel(self.master)
+        win.title(f"{title} — Preview"); win.transient(self.master); win.grab_set(); win.geometry("980x560"); win.minsize(860, 440)
+        ttk.Label(win, text=f"Selected/affected rows: {len(preview_rows)}",
+                  font=("Segoe UI", 10, "bold")).pack(anchor="w", padx=10, pady=(10,6))
+
+        cols = ("fpc","long","code","description")
+        headers = ("FPC_ID","LONG","CODE","DESCRIPTION")
+        tv = ttk.Treeview(win, columns=cols, show="headings", selectmode="none", height=18)
+        for c, h in zip(cols, headers):
+            tv.heading(c, text=h, anchor="center")
+            tv.column(c, anchor="center", width=150 if c!="description" else 320)
+        tv.pack(fill="both", expand=True, padx=10, pady=(0,6))
+
+        for fid0, longv, code_ba, desc_ba, opk, _tgt, _flag in preview_rows:
+            tag = "del" if opk.startswith("delete") else ("ins" if opk == "insert" else "")
+            tv.insert("", "end", values=(fid0, longv, code_ba, desc_ba), tags=(tag,))
+        tv.tag_configure("del", foreground="#b00020")
+        tv.tag_configure("ins", foreground="#006400")
+
+        def _apply_now():
+            changed = 0
+            # Reindex because we'll remove/add
+            id_to_idx_local = {int(r[0]): i for i, r in enumerate(self.rows_all)}
+            for fid0, longv, _code_ba, desc_ba, opk, tgt, flag in preview_rows:
+                if opk.startswith("delete"):
+                    idx_local = id_to_idx_local.get(int(fid0))
+                    if idx_local is None:
+                        continue  # nothing to delete
+                    # Remove from rows_all
+                    try:
+                        self.rows_all.pop(idx_local)
+                    except Exception:
+                        pass
+                    # update index map after pop
+                    id_to_idx_local = {int(r[0]): i for i, r in enumerate(self.rows_all)}
+                    # mark for deletion on save
+                    self.pending_delete_fpcs.add(int(fid0))
+                    # ensure we don't try to modify/insert it later
+                    self.modified_codes.pop(int(fid0), None)
+                    self.pending_new_fpcs.pop(int(fid0), None)
+                    changed += 1
+                    continue
+
+                if opk == "insert":
+                    if self._ensure_row_exists(int(fid0), str(tgt), long_hint=longv, desc_hint=desc_ba):
+                        changed += 1
+                    continue
+
+                if opk == "update":
+                    idx_local = id_to_idx_local.get(int(fid0))
+                    if idx_local is None:
+                        # should not happen, but if it does -> insert
+                        if self._ensure_row_exists(int(fid0), str(tgt), long_hint=longv, desc_hint=desc_ba):
+                            changed += 1
+                        id_to_idx_local = {int(r[0]): i for i, r in enumerate(self.rows_all)}
+                        continue
+                    f, longn, cur, desc, upd, _mark = self.rows_all[idx_local]
+                    if str(cur).upper() != str(tgt).upper():
+                        self.rows_all[idx_local] = (f, longn or longv, tgt, (desc_ba or desc), upd, tgt)
+                        self.modified_codes[int(fid0)] = str(tgt)
+                        changed += 1
+
+            self.apply_filter()
+            self._log(f"[EDIT] Applied '{title}' to {changed} row(s). Missing FPCs will be inserted and deletions applied on Save.")
+            win.destroy()
+
+        fx = ttk.Frame(win); fx.pack(side="bottom", fill="x", padx=10, pady=(8,10))
+        ttk.Button(fx, text="Close", command=win.destroy).pack(side="right", padx=6)
+        ttk.Button(fx, text="Apply", command=_apply_now).pack(side="right", padx=6)
+
+    def _ensure_row_exists(self, fid: int, target_code: str,
+                           long_hint: Optional[str] = None, desc_hint: Optional[str] = None) -> bool:
+        """Add missing FPC to rows_all and mark for XML insertion on save. Returns True if added."""
+        id_to_idx = {int(r[0]): i for i, r in enumerate(self.rows_all)}
+        if fid in id_to_idx:
+            self.modified_codes[fid] = target_code
+            # If pending for deletion, cancel that (we're explicitly adding/updating now)
+            if fid in self.pending_delete_fpcs:
+                self.pending_delete_fpcs.discard(fid)
+            return False
+        if long_hint is None or desc_hint is None:
+            long_after, desc_after = resolve_long_and_desc(self.mapping_desc, self.mapping_long, fid, target_code)
+            long_hint = long_hint if long_hint is not None else long_after
+            desc_hint = desc_hint if desc_hint is not None else desc_after
+        self.rows_all.append((fid, long_hint or "", target_code, desc_hint or "", "true", target_code))
+        self.modified_codes[fid] = target_code
+        self.pending_new_fpcs[fid] = target_code
+        # If it was scheduled for deletion, cancel that
+        self.pending_delete_fpcs.discard(fid)
+        return True
+
+    # helper to autosize tree columns
     def _auto_fit_columns(self) -> None:
         for col in self.tree["columns"]:
             data = [len(str(self.tree.set(k, col))) for k in self.tree.get_children('')]
             data.append(len(col))
-            max_len = max(data) if data else len(col)
-            width = max(90, min(540, int(max_len * 7.0)))
+            width = max(90, min(540, int(max_len * 7.0))) if (max_len := (max(data) if data else len(col))) else 120
             self.tree.column(col, width=width, anchor="center")
 
     def _allowed_ids_for_controller(self, ctrl: str) -> Optional[set]:
@@ -855,85 +1021,16 @@ class App(ttk.Frame):
                 display = [current_code] + display
         return display
 
-    
-    def _bulk_preview_and_apply(self, mapping: dict[int, str], title: str):
-        import tkinter as tk
-        from tkinter import ttk, messagebox
-
-        all_rows = self.rows_all or []
-        if not all_rows:
-            messagebox.showinfo(APP_TITLE, "Analyze an XML first."); return
-
-        id_to_idx = {int(r[0]): i for i, r in enumerate(all_rows)}
-        preview_rows = []
-
-        for fid, target_code in mapping.items():
-            idx = id_to_idx.get(fid)
-            if idx is None:
-                continue
-            fid0, long0, code_before, desc_before, upd0, _mark = all_rows[idx]
-            long_after, desc_after = resolve_long_and_desc(self.mapping_desc, self.mapping_long, fid0, str(target_code))
-            long_used = long0 or long_after
-            code_show = f"{code_before} \u2192 {target_code}" if str(code_before) != str(target_code) else str(code_before)
-            desc_show = (f"{desc_before} \u2192 {desc_after}" if desc_after and desc_after != desc_before
-                         else (desc_before or desc_after or ""))
-            preview_rows.append((fid0, long_used, code_show, desc_show, str(target_code), desc_after))
-
-        if not preview_rows:
-            messagebox.showinfo(APP_TITLE, "None of the mapped FPCs exist in this XML."); return
-
-        win = tk.Toplevel(self.master)
-        win.title(f"{title} — Preview"); win.transient(self.master); win.grab_set(); win.geometry("980x560"); win.minsize(860, 440)
-        ttk.Label(win, text=f"Selected rows: {len(preview_rows)}",
-                  font=("Segoe UI", 10, "bold")).pack(anchor="w", padx=10, pady=(10,6))
-
-        cols = ("fpc","long","code","description")
-        headers = ("FPC_ID","LONG","CODE","DESCRIPTION")
-        tv = ttk.Treeview(win, columns=cols, show="headings", selectmode="none", height=18)
-        for c, h in zip(cols, headers):
-            tv.heading(c, text=h, anchor="center")
-            tv.column(c, anchor="center", width=150 if c!="description" else 320)
-        tv.pack(fill="both", expand=True, padx=10, pady=(0,6))
-
-        for fid0, longv, code_ba, desc_ba, _tgt, _desc_after in preview_rows:
-            tv.insert("", "end", values=(fid0, longv, code_ba, desc_ba))
-
-        def _apply_now():
-            changed = 0
-            for fid0, _longv, _code_ba, _desc_ba, tgt, desc_after in preview_rows:
-                idx = id_to_idx.get(fid0)
-                if idx is None:
-                    continue
-                f, longn, cur, desc, upd, _mark = all_rows[idx]
-                if str(cur).upper() != str(tgt).upper():
-                    all_rows[idx] = (f, longn, tgt, (desc_after or desc), upd, tgt)
-                    self.modified_codes[int(fid0)] = tgt
-                    changed += 1
-            self.apply_filter()
-            self._log(f"[EDIT] Applied '{title}' to {changed} row(s).")
-            win.destroy()
-
-        fx = ttk.Frame(win); fx.pack(side="bottom", fill="x", padx=10, pady=(8,10))
-        ttk.Button(fx, text="Close", command=win.destroy).pack(side="right", padx=6)
-        ttk.Button(fx, text="Apply", command=_apply_now).pack(side="right", padx=6)
-
-    def _run_custom_pack(self, name: str):
-        mapping = CUSTOM_PACKS.get(name, {})
-        if not mapping:
-            self._log(f"[EDIT] '{name}': mapping is empty."); return
-        self._bulk_preview_and_apply(mapping, name)
-
-# ---------- actions ----------
-
+    # ---------- EXIT ----------
     def on_exit(self):
         """Ask to save unsaved changes, then exit."""
-        # Determine if there are modifications not saved: either modified_codes or pending VIN edits
         unsaved = bool(getattr(self, "modified_codes", {}) or 
                        getattr(self, "pending_vin_full", None) or 
-                       getattr(self, "pending_vin_short", None))
+                       getattr(self, "pending_vin_short", None) or
+                       getattr(self, "pending_new_fpcs", {}) or
+                       getattr(self, "pending_delete_fpcs", set()))
         if unsaved:
             resp = messagebox.askyesnocancel(APP_TITLE, "Save changes before exiting?")
-            # resp == True -> Yes, False -> No, None -> Cancel
             if resp is None:
                 return
             if resp is True:
@@ -946,11 +1043,6 @@ class App(ttk.Frame):
 
     # ---------- VIN helpers ----------
     def _extract_vin(self):
-        """
-        Robust VIN extractor:
-        1) Prefer attributes where Name contains 'vin' (case-insensitive).
-        2) Fallback regex of 17-char VIN [A-HJ-NPR-Z0-9]{17}.
-        """
         if not getattr(self, "xml_path", None):
             return None
         try:
@@ -968,13 +1060,12 @@ class App(ttk.Frame):
                         return cand
         except Exception:
             pass
-        # Fallback search in raw text
         try:
             raw = self.xml_path.read_text(encoding="utf-8", errors="ignore")
         except Exception:
             raw = self.xml_path.read_bytes().decode("latin1", errors="ignore")
         import re as _re
-        m = _re.search(r"\\b([A-HJ-NPR-Z0-9]{17})\\b", raw, flags=_re.IGNORECASE)
+        m = _re.search(r"\b([A-HJ-NPR-Z0-9]{17})\b", raw, flags=_re.IGNORECASE)
         return m.group(1).upper() if m else None
 
     def _extract_chassis_short(self):
@@ -995,7 +1086,8 @@ class App(ttk.Frame):
         try:
             raw = self.xml_path.read_text(encoding="utf-8", errors="ignore")
             import re as _re
-            m = _re.search(r'Name=["\\\']Chassis[^"\\\']*["\\\']\\s+Value=["\\\']([^"\\\']+)["\\\']', raw, flags=_re.IGNORECASE)
+            m = _re.search(r'Name=["\\\']Chassis[^"\\\']*["\\\']\s+Value=["\\\']([^"\\\']+)["\\\']',
+                           raw, flags=_re.IGNORECASE)
             if m: return m.group(1).strip()
         except Exception:
             pass
@@ -1086,10 +1178,6 @@ class App(ttk.Frame):
         return rows
 
     def _collect_ecus(self):
-        """Return list of normalized (Name, Family, Number) across different XML dialects:
-           - EcuName / EcuFamily / CplNo
-           - DiagnosticGeneration / DiagnosticFamily / CompleteNumber
-        """
         rows = []
         if not getattr(self, "xml_path", None):
             return rows
@@ -1102,29 +1190,13 @@ class App(ttk.Frame):
             if tag.lower() != "ecu":
                 continue
             at = getattr(e, "attrib", {}) or {}
-            # Primary naming
             name = at.get("EcuName") or at.get("ECUName") or at.get("name")
             fam  = at.get("EcuFamily") or at.get("ECUFamily") or at.get("family")
             num  = at.get("CplNo") or at.get("CPLNo") or at.get("cpl") or at.get("Cplno")
-            # Alternative naming (new style)
             name = name or at.get("DiagnosticGeneration") or at.get("diagGeneration") or at.get("DiagGeneration")
             fam  = fam  or at.get("DiagnosticFamily")     or at.get("diagFamily")     or at.get("DiagFamily")
             num  = num  or at.get("CompleteNumber")       or at.get("completeNumber") or at.get("CompNumber")
             rows.append((str(name or "").strip(), str(fam or "").strip(), str(num or "").strip()))
-        return rows
-        try:
-            root = load_xml_root_bytesafe(self.xml_path)
-        except Exception:
-            return rows
-        for e in root.iter():
-            tag = _localname(getattr(e, "tag", ""))
-            if tag.lower() != "ecu": 
-                continue
-            at = getattr(e, "attrib", {}) or {}
-            name = at.get("EcuName") or at.get("ECUName") or at.get("name") or ""
-            fam  = at.get("EcuFamily") or at.get("ECUFamily") or at.get("family") or ""
-            cpl  = at.get("CplNo") or at.get("CPLNo") or at.get("cpl") or at.get("Cplno") or ""
-            rows.append((str(name).strip(), str(fam).strip(), str(cpl).strip()))
         return rows
 
     def on_analyse_cntrl_unit(self):
@@ -1155,7 +1227,6 @@ class App(ttk.Frame):
 
         frm = ttk.Frame(win, padding=10); frm.pack(fill="both", expand=True)
 
-        # Treeview with scrollbar
         cols = ("name", "family", "number")
         container = ttk.Frame(frm); container.pack(fill="both", expand=True)
         tree = ttk.Treeview(container, columns=cols, show="headings", height=16, selectmode="browse")
@@ -1171,11 +1242,9 @@ class App(ttk.Frame):
             tree.heading(c, text=label, anchor="center")
             tree.column(c, width=200 if c!="number" else 160, anchor="center", stretch=True)
 
-        # Safe population
         added = 0
         try:
             for r in rows:
-                # Normalize tuple length
                 if not isinstance(r, (list, tuple)): 
                     r = (str(r), "", "")
                 if len(r) < 3:
@@ -1189,7 +1258,6 @@ class App(ttk.Frame):
         if not rows:
             self._log("[ECU] No ECUs found in this file.")
 
-        # Save button
         def _save_csv():
             suggested_base = (getattr(self, "current_vin", None) or self._extract_vin() or "ecus").upper()
             suggested = f"{suggested_base}_ecus.csv" if suggested_base else "ecus.csv"
@@ -1199,7 +1267,6 @@ class App(ttk.Frame):
                                                 filetypes=[("CSV files",".csv")])
             if not path: 
                 return
-            import csv
             try:
                 with open(path, "w", newline="", encoding="utf-8") as f:
                     w = csv.writer(f)
@@ -1208,18 +1275,35 @@ class App(ttk.Frame):
                         w.writerow(tree.item(item, "values"))
                 self._log(f"[OK] ECU CSV saved: {path}")
             except Exception as e:
-                messagebox.showerror(APP_TITLE, f"Failed to save ECU CSV:\\n{e}")
+                messagebox.showerror(APP_TITLE, f"Failed to save ECU CSV:\n{e}")
 
         btns = ttk.Frame(frm); btns.pack(fill="x", pady=(8,0))
         ttk.Button(btns, text="Save CSV", command=_save_csv).pack(side="right")
         ttk.Button(btns, text="Close", command=win.destroy).pack(side="right", padx=(0,6))
 
+    # ---------- XML open/analyze ----------
     def on_open_xml(self) -> None:
         path = filedialog.askopenfilename(title="Select SOPS XML", filetypes=[("XML files","*.xml"), ("All files","*.*")])
         if not path: return
         self.xml_path = Path(path)
         self.modified_codes.clear()
+        self.pending_new_fpcs.clear()
+        self.pending_delete_fpcs.clear()
         self._log(f"[OK] XML selected: {self.xml_path}")
+
+
+    def load_xml_programmatically(self, path: Path) -> None:
+        """
+        يضبط مسار XML من سطر الأوامر بدل صندوق الحوار،
+        ويمسح حالات التعديل المُعلّقة مثل on_open_xml().
+        """
+        self.xml_path = Path(path)
+        self.modified_codes.clear()
+        self.pending_new_fpcs.clear()
+        self.pending_delete_fpcs.clear()
+        self._log(f"[OK] XML selected: {self.xml_path}")
+
+
 
     def on_analyze(self) -> None:
         has_lib = (self.mapping_desc or self.mapping_long)
@@ -1355,7 +1439,6 @@ class App(ttk.Frame):
         self.on_row_select()
 
     def on_preview_popup(self):
-        """Compact preview for selected rows: FPC_ID, LONG, CODE (Before→After), DESCRIPTION (Before→After)."""
         try:
             idx = {'FPC_ID': 0, 'LONG': 1, 'CODE': 2, 'DESCRIPTION': 3}
             if hasattr(self, "tree") and self.tree is not None:
@@ -1448,6 +1531,8 @@ class App(ttk.Frame):
             new_long = (long0 or long_after)
             self.rows_all[idx] = (fid0, new_long, new_code, new_desc, upd0, new_code)
             self.modified_codes[fid] = new_code
+            # ensure not marked for deletion
+            self.pending_delete_fpcs.discard(fid)
             changed += 1
 
         if changed:
@@ -1458,7 +1543,10 @@ class App(ttk.Frame):
     def on_export_csv(self) -> None:
         if not self.rows_all:
             messagebox.showinfo(APP_TITLE, "Nothing to export yet."); return
-        path = filedialog.asksaveasfilename(title="Save results as CSV", defaultextension=".csv", initialfile=((self.current_vin or self._extract_vin() or "results").upper() + ".csv"), filetypes=[("CSV files",".csv")])
+        path = filedialog.asksaveasfilename(title="Save results as CSV",
+                                            defaultextension=".csv",
+                                            initialfile=((self.current_vin or self._extract_vin() or "results").upper() + ".csv"),
+                                            filetypes=[("CSV files",".csv")])
         if not path: return
         p = Path(path)
         try:
@@ -1470,27 +1558,128 @@ class App(ttk.Frame):
             messagebox.showerror(APP_TITLE, f"Failed to save CSV:\n{e}"); return
         self._log(f"[OK] Saved CSV: {p}")
 
-    
-    
-    def on_save_xml(self) -> None:
-        from tkinter import filedialog, messagebox
-        import re, traceback
-        from pathlib import Path
-        import xml.etree.ElementTree as ET
+    # ---------- XML helpers ----------
+    def _iter_with_parent(self, node):
+        for child in list(node):
+            yield node, child
+            yield from self._iter_with_parent(child)
 
+    def _detect_fpc_signature(self, root):
+        """
+        Returns: (parent_node, fpc_tag, name_key, value_key, updated_key)
+        Chooses the most common parent of FPC items and matches attribute case.
+        """
+        parent_counts = {}
+        candidates = []
+        for parent, child in self._iter_with_parent(root):
+            if _localname(getattr(child, "tag", "")).lower() != "fpc":
+                continue
+            at = getattr(child, "attrib", {}) or {}
+            nm = at.get("Name") or at.get("name") or at.get("id") or at.get("fpc")
+            try:
+                _ = int(str(nm))
+            except:
+                continue
+            candidates.append((parent, child))
+            parent_counts[parent] = parent_counts.get(parent, 0) + 1
+
+        if not candidates:
+            return root, "FPC", "Name", "Value", "Updated"
+
+        parent = max(parent_counts, key=parent_counts.get)
+        sample = next(ch for (p, ch) in candidates if p is parent)
+        name_key = "Name" if "Name" in sample.attrib else ("name" if "name" in sample.attrib else "Name")
+        value_key = "Value" if "Value" in sample.attrib else ("value" if "value" in sample.attrib else "Value")
+        updated_key = "Updated" if "Updated" in sample.attrib else ("updated" if "updated" in sample.attrib else "Updated")
+        return parent, sample.tag, name_key, value_key, updated_key
+
+    def _insert_new_fpcs_into_xml(self, root) -> int:
+        """
+        Inserts all pending_new_fpcs as <FPC .../> nodes ordered by numeric Name.
+        Returns number of inserted nodes.
+        """
+        to_add = dict(getattr(self, "pending_new_fpcs", {}))
+        if not to_add:
+            return 0
+
+        parent, fpc_tag, name_key, value_key, updated_key = self._detect_fpc_signature(root)
+        children = list(parent)
+        existing = []  # (idx, elem, fid)
+        for idx, ch in enumerate(children):
+            if _localname(getattr(ch, "tag", "")).lower() != "fpc":
+                continue
+            at = getattr(ch, "attrib", {}) or {}
+            nm = at.get(name_key) or at.get("Name") or at.get("name") or at.get("id") or at.get("fpc")
+            try:
+                fid = int(str(nm))
+            except:
+                continue
+            existing.append((idx, ch, fid))
+
+        inserted = 0
+        for fid, code in sorted(to_add.items()):
+            if any(f == fid for _, _, f in existing):
+                continue
+
+            prev_positions = [i for (i, _ch, f) in existing if f < fid]
+            next_positions = [i for (i, _ch, f) in existing if f > fid]
+            if prev_positions:
+                insert_at = max(prev_positions) + 1
+            elif next_positions:
+                insert_at = min(next_positions)
+            else:
+                insert_at = len(children)
+
+            new_elem = ET.Element(fpc_tag)
+            new_elem.attrib[name_key] = str(fid)
+            new_elem.attrib[value_key] = str(code)
+            new_elem.attrib[updated_key] = "true"
+
+            parent.insert(insert_at, new_elem)
+            children.insert(insert_at, new_elem)
+            existing.append((insert_at, new_elem, fid))
+            existing = [(children.index(ch), ch, f) for (_i, ch, f) in existing]
+            inserted += 1
+
+        return inserted
+
+    def _delete_pending_fpcs_from_xml(self, root) -> int:
+        """
+        Deletes all FPC nodes whose numeric Name is in pending_delete_fpcs.
+        Returns number of deleted nodes.
+        """
+        targets = set(getattr(self, "pending_delete_fpcs", set()))
+        if not targets:
+            return 0
+        deleted = 0
+        for parent, child in list(self._iter_with_parent(root)):
+            if _localname(getattr(child, "tag", "")).lower() != "fpc":
+                continue
+            at = getattr(child, "attrib", {}) or {}
+            nm = at.get("Name") or at.get("name") or at.get("id") or at.get("fpc")
+            try:
+                fid = int(str(nm))
+            except:
+                continue
+            if fid in targets:
+                try:
+                    parent.remove(child)
+                    deleted += 1
+                except Exception:
+                    pass
+        return deleted
+
+    def on_save_xml(self) -> None:
         if not self.xml_path:
             messagebox.showinfo(APP_TITLE, "Choose an XML first."); return
-        if not self.modified_codes and not (getattr(self, "pending_vin_full", None) or getattr(self, "pending_vin_short", None)):
+        if not (self.modified_codes or self.pending_vin_full or self.pending_vin_short or self.pending_new_fpcs or self.pending_delete_fpcs):
             messagebox.showinfo(APP_TITLE, "No modifications to save."); return
 
         src = Path(self.xml_path)
 
         # --- Suggest incremented filename for ANY XML ---
         full_name = src.name
-        if full_name.lower().endswith('.xml'):
-            base_no_xml = full_name[:-4]
-        else:
-            base_no_xml = src.stem
+        base_no_xml = full_name[:-4] if full_name.lower().endswith('.xml') else src.stem
         m = re.search(r'(.*?)(?:\.)(\d+)(.*)$', base_no_xml)
         if m:
             prefix, num, tail = m.groups()
@@ -1513,7 +1702,16 @@ class App(ttk.Frame):
 
         try:
             root = load_xml_root_bytesafe(self.xml_path)
-            # Apply pending VIN/Chassis changes before code updates
+
+            # Insert missing FPC nodes first
+            try:
+                ins = self._insert_new_fpcs_into_xml(root)
+                if ins:
+                    self._log(f"[SAVE] Inserted {ins} new FPC node(s).")
+            except Exception as e_ins:
+                self._log(f"[WARN] Could not insert missing FPCs: {e_ins}")
+
+            # Apply pending VIN/Chassis changes
             if getattr(self, 'pending_vin_full', None) or getattr(self, 'pending_vin_short', None):
                 rep_full = rep_short = 0
                 for e2 in root.iter():
@@ -1530,7 +1728,10 @@ class App(ttk.Frame):
                         rep_short += 1
                 if rep_full or rep_short:
                     self._log(f"[VIN] Applied pending VIN changes: VIN={rep_full} place(s), Chassis={rep_short} place(s).")
+
+            # Update codes (skip any FPCs scheduled for deletion)
             updated_cnt = 0
+            code_map = {fid: code for fid, code in dict(self.modified_codes).items() if fid not in self.pending_delete_fpcs}
             for e in root.iter():
                 if not e.attrib: continue
                 name = e.attrib.get("Name") or e.attrib.get("name") or e.attrib.get("id") or e.attrib.get("fpc")
@@ -1539,8 +1740,8 @@ class App(ttk.Frame):
                     fid = int(str(name))
                 except:
                     continue
-                if fid in self.modified_codes:
-                    new_code = self.modified_codes[fid]
+                if fid in code_map:
+                    new_code = code_map[fid]
                     if "Value" in e.attrib: e.attrib["Value"] = new_code
                     if "value" in e.attrib: e.attrib["value"] = new_code
                     if "Updated" in e.attrib: e.attrib["Updated"] = "true"
@@ -1549,8 +1750,17 @@ class App(ttk.Frame):
                         e.attrib["Updated"] = "true"
                     updated_cnt += 1
 
+            # Delete requested FPCs
+            try:
+                dels = self._delete_pending_fpcs_from_xml(root)
+                if dels:
+                    self._log(f"[SAVE] Deleted {dels} FPC node(s).")
+            except Exception as e_del:
+                self._log(f"[WARN] Could not delete some FPCs: {e_del}")
+
             ET.ElementTree(root).write(outp, encoding="utf-8", xml_declaration=True)
 
+            # Try bump MajorVersion
             try:
                 txt = outp.read_text(encoding="utf-8", errors="ignore")
                 def bump(mv): return f'MajorVersion="{int(mv.group(1))+1}"'
@@ -1567,15 +1777,13 @@ class App(ttk.Frame):
             except Exception as e_bump:
                 self._log(f"[WARN] Could not bump MajorVersion: {e_bump}")
 
-            # --- Preserve original XML declaration (line 1) and newline style ---
+            # Preserve original XML declaration & EOL
             try:
                 orig_text = Path(self.xml_path).read_text(encoding="utf-8", errors="ignore")
-                # detect newline style from original
                 orig_eol = "\r\n" if "\r\n" in orig_text else "\n"
                 first_line = orig_text.splitlines()[0] if orig_text else ""
                 if first_line.strip().startswith("<?xml"):
                     new_text = outp.read_text(encoding="utf-8", errors="ignore")
-                    # splitlines(keepends=False) then rejoin with original EOL
                     lines = new_text.splitlines()
                     if lines:
                         lines[0] = first_line.strip()
@@ -1585,8 +1793,12 @@ class App(ttk.Frame):
             except Exception as e_decl:
                 self._log(f"[WARN] Could not preserve XML declaration: {e_decl}")
 
-            self._log(f"[SAVE] Saved XML: {outp} | modified FPCs: {updated_cnt}")
-            messagebox.showinfo(APP_TITLE, f"Saved: {outp}\nModified FPCs: {updated_cnt}\n(Original kept: {src.name})")
+            self._log(f"[SAVE] Saved XML: {outp} | modified FPCs: {updated_cnt} | deleted: {len(self.pending_delete_fpcs)}")
+            messagebox.showinfo(APP_TITLE, f"Saved: {outp}\nModified FPCs: {updated_cnt}\nDeleted FPCs: {len(self.pending_delete_fpcs)}\n(Original kept: {src.name})")
+
+            # Clear pending lists after success
+            self.pending_new_fpcs.clear()
+            self.pending_delete_fpcs.clear()
         except Exception as e:
             self._log(f"[ERROR] Save failed:\n{e}")
             self._log(traceback.format_exc())
@@ -1651,13 +1863,39 @@ class App(ttk.Frame):
         except Exception:
             return code_now, desc_now
 
+
+def parse_args():
+    ap = argparse.ArgumentParser(description="Full SOPS Parameter Editor launcher")
+    ap.add_argument("--open", dest="open_path", help="Path to an XML file to open")
+    ap.add_argument("--analyze", action="store_true", help="Run Analyze automatically after opening")
+    return ap.parse_args()
+
 # ---------- main ----------
 def main() -> None:
+    args = parse_args()
+
     root = tk.Tk()
     root.option_add('*TCombobox*Listbox*Font', ('Segoe UI', 10))
     root.option_add('*Font', ('Segoe UI', 10))
     root.title(APP_TITLE); root.geometry(APP_GEOM)
-    App(root)
+
+    app = App(root)
+
+    # تشغيل اختياري عبر الوسائط:
+    if args.open_path:
+        p = Path(args.open_path)
+        if p.exists():
+            try:
+                app.load_xml_programmatically(p)
+                if args.analyze:
+                    # نؤجل قليلاً لضمان اكتمال بناء الواجهة ثم نحلل
+                    root.after(100, app.on_analyze)
+            except Exception as e:
+                app._log(f"[ERROR] CLI open/analyze failed: {e}")
+        else:
+            app._log(f"[ERROR] Path not found: {p}")
+
+    root.protocol("WM_DELETE_WINDOW", app.on_exit)
     root.mainloop()
 
 if __name__ == "__main__":

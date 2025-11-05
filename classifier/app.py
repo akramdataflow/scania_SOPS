@@ -2,6 +2,8 @@ import os
 import csv
 import shutil
 import time
+import sys
+import subprocess
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, simpledialog
 import xml.etree.ElementTree as ET
@@ -89,6 +91,41 @@ def unique_store_path(original_path: str) -> str:
         dest = os.path.join(XML_STORE_DIR, f"{name}_{suffix}_{c}{ext}")
         c += 1
     return dest
+
+# ---- Editor discovery (NEW) ----
+def _sops_root() -> str:
+
+    return os.path.join(os.path.expanduser("~"), "Documents", "GitHub", "scania_SOPS")
+
+def find_editor_script() -> str:
+    """
+    يبحث عن ملف المحرّر Full_SOPS_Editor*.py تحت مجلد scania_SOPS.
+    يمكن تجاوز المسار عبر متغير البيئة FULL_SOPS_EDITOR.
+    """
+    env = os.environ.get("FULL_SOPS_EDITOR")
+    if env and os.path.isfile(env):
+        return env
+
+    base = _sops_root()
+    candidates = []
+    try:
+        for fn in os.listdir(base):
+            low = fn.lower()
+            if low.startswith("full_sops_editor") and low.endswith(".py"):
+                candidates.append(os.path.join(base, fn))
+    except Exception:
+        pass
+
+    if candidates:
+        candidates.sort(key=lambda p: os.path.getmtime(p), reverse=True)
+        return candidates[0]
+
+    # fallback إلى اسم قديم إن وُجد
+    fallback = os.path.join(base, "Full_SOPS_Editor_v8_13_EN_Ready_Custom_v4_ecu_vin_diag_bottombar_fixedfinal.py")
+    if os.path.exists(fallback):
+        return fallback
+
+    return ""  # لم يُعثر على المحرّر
 
 # ---------- Mapping ----------
 def resolve_mapping_path() -> str:
@@ -350,14 +387,16 @@ class App(tk.Tk):
 
         map_status = MAPPING_PATH if MAPPING_PATH else "NOT FOUND (meanings will be blank)"
         self.map_status_var = tk.StringVar(value=f"Mapping: {map_status}")
-        ttk.Label(top, textvariable=self.map_status_var).pack(side="left", padx=(16, 0))
+        
 
-        ttk.Label(top, text="Filter:",).pack(side="left", padx=(16, 4))
+        
         self.filter_var = tk.StringVar()
         ent = ttk.Entry(top, textvariable=self.filter_var, width=40)
-        ent.pack(side="left")
+        
         ent.bind("<KeyRelease>", lambda e: self.apply_filter())
 
+        # NEW: Open in Editor button (on the right)
+        ttk.Button(top, text="Open in Editor", command=self.open_in_editor).pack(side="right", padx=(8, 0))
         ttk.Button(top, text="Copy Selected to Downloads", command=self.copy_selected).pack(side="right")
 
         # Treeview
@@ -546,6 +585,40 @@ class App(tk.Tk):
                 messagebox.showerror("Copy failed", f"Failed to copy to Downloads:\n{e}")
         if copied:
             messagebox.showinfo("Copied", f"Copied {copied} file(s) to Downloads.")
+
+    # ---- NEW: open selected XML directly in the Editor ----
+    def open_in_editor(self):
+        sel = self.tree.selection()
+        if not sel:
+            messagebox.showwarning("No selection", "Please select a row first.")
+            return
+        if len(sel) > 1:
+            messagebox.showinfo(APP_TITLE, "سيتم فتح أوّل صف محدّد فقط.")
+
+        row = self.row_by_iid.get(sel[0], {})
+        xml_path = row.get("XML_Path", "")
+        if not xml_path or not os.path.exists(xml_path):
+            messagebox.showerror("Missing file", f"Stored XML not found:\n{xml_path}")
+            return
+
+        editor_path = find_editor_script()
+        if not editor_path:
+            messagebox.showerror(
+                "Editor not found",
+                "لم أجد ملف المُحرّر تحت:\nDocuments\\GitHub\\scania_SOPS\n"
+                "يمكنك أيضًا تحديد المسار بدقّة عبر متغير البيئة FULL_SOPS_EDITOR."
+            )
+            return
+
+        py = sys.executable or shutil.which("python") or shutil.which("py")
+        if not py:
+            messagebox.showerror("Python not found", "لم أستطع العثور على Python لتشغيل المُحرّر.")
+            return
+
+        try:
+            subprocess.Popen([py, editor_path, "--open", xml_path, "--analyze"], close_fds=True)
+        except Exception as e:
+            messagebox.showerror("Launch failed", f"فشل تشغيل المُحرّر:\n{e}")
 
 if __name__ == "__main__":
     load_mapping()
