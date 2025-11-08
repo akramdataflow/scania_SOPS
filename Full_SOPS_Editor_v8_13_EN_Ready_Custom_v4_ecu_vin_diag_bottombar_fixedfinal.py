@@ -1218,6 +1218,8 @@ class App(ttk.Frame):
         self._log(f"[ECU] items found: {len(rows)}")
         self._show_ecu_popup(rows)
 
+    
+
     def _show_ecu_popup(self, rows):
         win = tk.Toplevel(self.master); win.title("ECU List"); win.grab_set()
         try:

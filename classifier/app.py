@@ -1,49 +1,23 @@
-# -*- coding: utf-8 -*-
-import os, sys, csv, shutil, time, json, subprocess
+import os
+import csv
+import shutil
+import time
+import sys
+import subprocess
+import json
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, simpledialog
 import xml.etree.ElementTree as ET
-from pathlib import Path
 
-APP_TITLE = "Scania Spec Index (portable store, editor handoff, normalize paths)"
+APP_TITLE = "Scania Spec Index (ttkinter — meanings, dynamic 3113..3148, responsive, search)"
 
-# ===================== Global, portable storage =====================
-def global_store_root() -> str:
-    """Return machine-wide data dir and ensure it exists."""
-    if os.name == "nt":
-        pd = os.environ.get("PROGRAMDATA", r"C:\ProgramData")
-        target = Path(pd) / "ScaniaSpec"
-        try:
-            target.mkdir(parents=True, exist_ok=True)
-            return str(target)
-        except Exception:
-            la = os.environ.get("LOCALAPPDATA", os.path.expanduser(r"~\\AppData\\Local"))
-            target = Path(la) / "ScaniaSpec"
-            target.mkdir(parents=True, exist_ok=True)
-            return str(target)
-    else:
-        base = os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share"))
-        target = Path(base) / "scania_spec"
-        target.mkdir(parents=True, exist_ok=True)
-        return str(target)
+# Base paths
+BASE_DIR = os.path.join(os.path.expanduser("~"), r"Documents\GitHub\scania_SOPS\classifier")
+CSV_PATH = os.path.join(BASE_DIR, "spec_index.csv")
+XML_STORE_DIR = os.path.join(BASE_DIR, "stored_xml")
+CONFIG_PATH = os.path.join(BASE_DIR, "config.json")  # store editor path
 
-GLOBAL_DATA_DIR = global_store_root()
-XML_STORE_DIR   = os.path.join(GLOBAL_DATA_DIR, "stored_xml")
-os.makedirs(XML_STORE_DIR, exist_ok=True)
-CSV_PATH        = os.path.join(GLOBAL_DATA_DIR, "spec_index.csv")
-CONFIG_PATH     = os.path.join(GLOBAL_DATA_DIR, "config.json")
-
-def xml_abs(path_value: str) -> str:
-    """Resolve absolute path for an XML based on stored value (filename/relative/absolute)."""
-    p = (path_value or "").strip()
-    if not p:
-        return ""
-    if os.path.isabs(p):
-        return p
-    return os.path.join(XML_STORE_DIR, p)
-
-# ===================== App-local (mapping & columns) =====================
-# Mapping candidates (keep your originals; no assumptions on their presence)
+# Mapping candidates
 MAPPING_CANDIDATES = [
     r"C:\Users\Kstore\Documents\GitHub\scania_SOPS\sops_fpc_mapping.csv",
     os.path.join(os.path.expanduser("~"), r"Documents\GitHub\scania_SOPS\sops_fpc_mapping.csv"),
@@ -51,9 +25,13 @@ MAPPING_CANDIDATES = [
     os.path.join(os.path.dirname(__file__), "sops_fpc_mapping.csv"),
 ]
 
+# Remove any columns whose name contains this (case-insensitive)
 FORBIDDEN_SUBSTR = "environment"
 
-# Fixed fields (Descriptions only)
+# Explicitly excluded column names (case-insensitive)
+EXCLUDED_COLUMNS = {"engine management system"}  # dropped entirely
+
+# Fixed fields (Descriptions only). Order defines column order in table/CSV.
 FIXED_FIELDS = [
     ("448",   "Axles"),
     ("3127",  "EngineECU"),
@@ -69,10 +47,12 @@ FIXED_FIELDS = [
 
     # COO + Gearbox cluster
     ("3113",  "COO"),
-    ("3129",  "GearboxECU"),
+    ("3129",  "GearboxECU"),  # if code == 'Z' -> 'GMan'
     ("17",    "Gearbox Type"),
 ]
+FIXED_IDS = {fid for fid, _ in FIXED_FIELDS}
 
+# Dynamic FPC range (short-named columns, dedup by label, excluding forbidden names)
 DYN_START = 3113
 DYN_END   = 3148
 DYN_RANGE = [str(i) for i in range(DYN_START, DYN_END + 1)]
@@ -83,91 +63,27 @@ SHORT_BY_ID  = {}
 DESC_BY_PAIR = {}
 MAPPING_PATH = ""
 
-# ===================== Config (first-run editor selection) =====================
-DEFAULT_CONFIG = {
-    "editor_path": ""   # full path to Full_SOPS_Editor*.py
-}
-
-def load_config() -> dict:
-    try:
-        if os.path.exists(CONFIG_PATH):
-            return json.loads(Path(CONFIG_PATH).read_text(encoding="utf-8"))
-    except Exception:
-        pass
-    return dict(DEFAULT_CONFIG)
-
-def save_config(cfg: dict) -> None:
-    try:
-        Path(CONFIG_PATH).write_text(json.dumps(cfg, ensure_ascii=False, indent=2), encoding="utf-8")
-    except Exception as e:
-        messagebox.showwarning("Config", f"Failed to save config:\n{e}")
-
-def ask_editor_path(parent=None) -> str:
-    """Ask user once for the editor .py path, save to config, return path or ''."""
-    messagebox.showinfo(
-        "Choose Editor",
-        "حدد ملف برنامج التعديل Full_SOPS_Editor*.py مرة واحدة، وسيتم حفظ الاختيار."
-    )
-    # Suggest default directory under Documents/GitHub/scania_SOPS
-    initial = os.path.join(os.path.expanduser("~"), "Documents", "GitHub", "scania_SOPS")
-    p = filedialog.askopenfilename(
-        parent=parent,
-        title="Select Editor script (Full_SOPS_Editor*.py)",
-        initialdir=initial if os.path.isdir(initial) else None,
-        filetypes=[("Python", "*.py"), ("All files", "*.*")]
-    )
-    if not p:
-        return ""
-    cfg = load_config()
-    cfg["editor_path"] = p
-    save_config(cfg)
-    return p
-
-def get_editor_path(parent=None) -> str:
-    """Return saved editor path or prompt first time."""
-    cfg = load_config()
-    p = (cfg.get("editor_path") or "").strip()
-    if p and os.path.exists(p):
-        return p
-    # Try auto-discover under scania_SOPS folder in Documents
-    doc_root = os.path.join(os.path.expanduser("~"), "Documents", "GitHub", "scania_SOPS")
-    try:
-        cand = []
-        if os.path.isdir(doc_root):
-            for fn in os.listdir(doc_root):
-                low = fn.lower()
-                if low.startswith("full_sops_editor") and low.endswith(".py"):
-                    cand.append(os.path.join(doc_root, fn))
-        if cand:
-            cand.sort(key=lambda x: os.path.getmtime(x), reverse=True)
-            # Save best guess
-            cfg["editor_path"] = cand[0]
-            save_config(cfg)
-            return cand[0]
-    except Exception:
-        pass
-    # Ask the user
-    return ask_editor_path(parent=parent)
-
-# ===================== Helpers =====================
+# ---------- Helpers ----------
 def ensure_dirs():
-    # global store already created; nothing else required here
+    os.makedirs(BASE_DIR, exist_ok=True)
     os.makedirs(XML_STORE_DIR, exist_ok=True)
 
 def local_name(tag: str) -> str:
-    return tag.split("}", 1)[1] if "}" in tag else tag
+    if "}" in tag:
+        return tag.split("}", 1)[1]
+    return tag
 
 def _clean(s: str) -> str:
     return (s or "").strip()
 
 def _is_intlike(s: str) -> bool:
     try:
-        int(s.strip()); return True
+        int(s.strip())
+        return True
     except Exception:
         return False
 
 def unique_store_path(original_path: str) -> str:
-    """Return a unique path under XML_STORE_DIR keeping original filename base."""
     base = os.path.basename(original_path)
     name, ext = os.path.splitext(base)
     dest = os.path.join(XML_STORE_DIR, base)
@@ -180,6 +96,87 @@ def unique_store_path(original_path: str) -> str:
         dest = os.path.join(XML_STORE_DIR, f"{name}_{suffix}_{c}{ext}")
         c += 1
     return dest
+
+# ---- Editor discovery ----
+def _sops_root() -> str:
+    return os.path.join(os.path.expanduser("~"), "Documents", "GitHub", "scania_SOPS")
+
+def find_editor_script() -> str:
+    env = os.environ.get("FULL_SOPS_EDITOR")
+    if env and os.path.isfile(env):
+        return env
+
+    base = _sops_root()
+    candidates = []
+    try:
+        for fn in os.listdir(base):
+            low = fn.lower()
+            if low.startswith("full_sops_editor") and low.endswith(".py"):
+                candidates.append(os.path.join(base, fn))
+    except Exception:
+        pass
+
+    if candidates:
+        candidates.sort(key=lambda p: os.path.getmtime(p), reverse=True)
+        return candidates[0]
+
+    fallback = os.path.join(base, "Full_SOPS_Editor_v8_13_EN_Ready_Custom_v4_ecu_vin_diag_bottombar_fixedfinal.py")
+    if os.path.exists(fallback):
+        return fallback
+
+    return ""
+
+# ---------- Config for editor path ----------
+def load_config() -> dict:
+    try:
+        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {"editor_path": ""}
+
+def save_config(cfg: dict) -> None:
+    try:
+        with open(CONFIG_PATH, "w", encoding="utf-8") as f:
+            json.dump(cfg, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        messagebox.showwarning("Config", f"Failed to save config:\n{e}")
+
+def ask_editor_path(parent=None) -> str:
+    messagebox.showinfo(
+        "Choose Editor",
+        "Please select the editor script (Full_SOPS_Editor*.py). The path will be saved for future runs."
+    )
+    initial = _sops_root()
+    p = filedialog.askopenfilename(
+        parent=parent,
+        title="Select Editor script (Full_SOPS_Editor*.py)",
+        initialdir=initial if os.path.isdir(initial) else None,
+        filetypes=[("Python files", "*.py"), ("All files", "*.*")]
+    )
+    if not p:
+        return ""
+    cfg = load_config()
+    cfg["editor_path"] = p
+    save_config(cfg)
+    return p
+
+def get_editor_path(parent=None) -> str:
+    env = os.environ.get("FULL_SOPS_EDITOR")
+    if env and os.path.isfile(env):
+        return env
+
+    cfg = load_config()
+    p = (cfg.get("editor_path") or "").strip()
+    if p and os.path.isfile(p):
+        return p
+
+    auto = find_editor_script()
+    if auto:
+        cfg["editor_path"] = auto
+        save_config(cfg)
+        return auto
+
+    return ask_editor_path(parent)
 
 # ---------- Mapping ----------
 def resolve_mapping_path() -> str:
@@ -197,7 +194,8 @@ def load_mapping():
     try:
         with open(MAPPING_PATH, "r", encoding="utf-8", newline="") as f:
             rows = list(csv.reader(f))
-        if not rows: return
+        if not rows:
+            return
         headers = rows[0]
         norm = {"".join(ch for ch in (h or "").lower() if ch.isalnum()): i for i, h in enumerate(headers)}
         def idx_of(*names):
@@ -249,36 +247,28 @@ def short_for(fpc_id: str) -> str:
         if s: return s
     return f"FPC_{fpc_id}"
 
-# ---------- XML ----------
-def parse_fpc_map(xml_path: str) -> dict:
-    fpc = {}
-    try:
-        tree = ET.parse(xml_path)
-        root = tree.getroot()
-    except Exception as e:
-        raise RuntimeError(f"XML parse failed: {e}")
-    for el in root.iter():
-        if local_name(el.tag).upper() == "FPC":
-            name = el.attrib.get("Name")
-            val  = el.attrib.get("Value")
-            if name is not None and val is not None:
-                fpc[name.strip()] = val.strip()
-    return fpc
-
-# ---------- CSV header ----------
+# ---------- CSV/columns filtering ----------
 def _remove_forbidden(name: str) -> bool:
-    return FORBIDDEN_SUBSTR and (FORBIDDEN_SUBSTR.lower() in (name or "").lower())
+    if not name:
+        return False
+    low = (name or "").lower()
+    if FORBIDDEN_SUBSTR and FORBIDDEN_SUBSTR.lower() in low:
+        return True
+    if low in EXCLUDED_COLUMNS:
+        return True
+    return False
 
 def compute_csv_columns():
     cols = ["Year"]
-    # fixed
     for _, col_name in FIXED_FIELDS:
         if not _remove_forbidden(col_name):
             cols.append(col_name)
-    # dynamic
+
     dynamic_labels = []
     seen = set(cols)
     for fid in DYN_RANGE:
+        if fid in FIXED_IDS:
+            continue
         s = short_for(fid)
         if _remove_forbidden(s):
             continue
@@ -286,6 +276,7 @@ def compute_csv_columns():
             continue
         seen.add(s)
         dynamic_labels.append((fid, s))
+
     cols.extend([label for _, label in dynamic_labels])
     cols.append("XML_Path")
     return cols, dynamic_labels
@@ -319,39 +310,22 @@ def upgrade_csv_if_needed(target_header):
             w.writerow(new_row)
     shutil.move(tmp, CSV_PATH)
 
-# ---------- CSV Normalizer (migrate absolute paths -> filenames) ----------
-def normalize_csv_paths():
-    if not os.path.exists(CSV_PATH):
-        return
-    with open(CSV_PATH, "r", encoding="utf-8", newline="") as f:
-        rdr = csv.DictReader(f)
-        rows = list(rdr)
-        header = rdr.fieldnames
-    if not rows or not header or "XML_Path" not in header:
-        return
-    changed = False
-    for r in rows:
-        p = (r.get("XML_Path", "") or "").strip()
-        if not p:
-            continue
-        if os.path.isabs(p):
-            bn = os.path.basename(p)
-            dest = os.path.join(XML_STORE_DIR, bn)
-            if os.path.exists(p) and not os.path.exists(dest):
-                try:
-                    shutil.copy2(p, dest)
-                except Exception:
-                    pass
-            r["XML_Path"] = bn
-            changed = True
-    if changed:
-        with open(CSV_PATH, "w", encoding="utf-8", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=header)
-            w.writeheader()
-            for r in rows:
-                w.writerow(r)
-
 # ---------- Build & save ----------
+def parse_fpc_map(xml_path: str) -> dict:
+    fpc = {}
+    try:
+        tree = ET.parse(xml_path)
+        root = tree.getroot()
+    except Exception as e:
+        raise RuntimeError(f"XML parse failed: {e}")
+    for el in root.iter():
+        if local_name(el.tag).upper() == "FPC":
+            name = el.attrib.get("Name")
+            val  = el.attrib.get("Value")
+            if name is not None and val is not None:
+                fpc[name.strip()] = val.strip()
+    return fpc
+
 def build_record(xml_path: str, year: str, stored_xml_path: str, dynamic_labels):
     fpc_map = parse_fpc_map(xml_path)
     header, _ = compute_csv_columns()
@@ -373,8 +347,7 @@ def build_record(xml_path: str, year: str, stored_xml_path: str, dynamic_labels)
         code = fpc_map.get(fpc_id, "")
         rec[col_label] = meaning_for(fpc_id, code)
 
-    # store filename only (portable)
-    rec["XML_Path"] = os.path.basename(stored_xml_path)
+    rec["XML_Path"] = stored_xml_path
     return rec
 
 def append_record(rec, header):
@@ -454,7 +427,13 @@ class App(tk.Tk):
 
         self.header, self.dynamic_labels = compute_csv_columns()
         upgrade_csv_if_needed(self.header)
-        normalize_csv_paths()  # migrate old paths once
+
+        # Menubar with Settings -> Change Editor Path…
+        menubar = tk.Menu(self)
+        settings_menu = tk.Menu(menubar, tearoff=False)
+        settings_menu.add_command(label="Change Editor Path…", command=self.on_change_editor_path)
+        menubar.add_cascade(label="Settings", menu=settings_menu)
+        self.config(menu=menubar)
 
         # Top bar
         top = ttk.Frame(self, padding=8)
@@ -464,30 +443,22 @@ class App(tk.Tk):
         ttk.Button(top, text="Refresh", command=self.refresh_table).pack(side="left", padx=(8, 0))
         ttk.Button(top, text="Search…", command=self.open_search_window).pack(side="left", padx=(8, 0))
 
-        # Settings menu (Change editor / Normalize / Open data dir)
-        menuf = ttk.Menubutton(top, text="Settings")
-        menu = tk.Menu(menuf, tearoff=0)
-        menu.add_command(label="Change Editor Path…", command=self.on_change_editor_path)
-        menu.add_command(label="Normalize CSV Paths Now", command=normalize_csv_paths)
-        menu.add_command(label="Open Data Folder", command=lambda: os.startfile(GLOBAL_DATA_DIR) if os.name=="nt" else None)
-        menuf["menu"] = menu
-        menuf.pack(side="left", padx=(8,0))
-
         # Filter
-        ttk.Label(top, text="Filter:").pack(side="left", padx=(16, 4))
         self.filter_var = tk.StringVar()
         ent = ttk.Entry(top, textvariable=self.filter_var, width=40)
-        ent.pack(side="left")
+        ent.pack(side="left", padx=(8, 0))
         ent.bind("<KeyRelease>", lambda e: self.apply_filter())
 
         # Right-side actions
-        ttk.Button(top, text="Open in Editor", command=self.open_in_editor).pack(side="right", padx=(8, 0))
+        ttk.Button(top, text="Copy Filtered to Downloads", command=self.copy_filtered).pack(side="right")
+        ttk.Button(top, text="Delete Selected", command=self.delete_selected).pack(side="right", padx=(8, 0))
         ttk.Button(top, text="Copy Selected to Downloads", command=self.copy_selected).pack(side="right")
+        ttk.Button(top, text="Open in Editor", command=self.open_in_editor).pack(side="right", padx=(8, 0))
 
         # Treeview
-        self.visible_columns = []
+        self.visible_columns = []      # computed after loading rows (no XML_Path)
         self.tree = ttk.Treeview(self, columns=(), show="headings")
-        self.row_by_iid = {}
+        self.row_by_iid = {}           # iid -> full record (for hidden XML_Path)
 
         vsb = ttk.Scrollbar(self, orient="vertical", command=self.tree.yview)
         hsb = ttk.Scrollbar(self, orient="horizontal", command=self.tree.xview)
@@ -497,31 +468,37 @@ class App(tk.Tk):
         vsb.pack(fill="y", side="right")
         hsb.pack(fill="x", side="bottom")
 
+        # Auto-fit on resize
         self.bind("<Configure>", lambda e: self.auto_fit_columns())
 
+        # Search criteria (single choice per column)
         self.search_criteria = {}
+
         self.all_rows = []
         self.refresh_table()
 
-        # Prepare editor path (first-run prompt if needed)
+        # First run: ensure editor path is set (will prompt once if missing)
         _ = get_editor_path(parent=self)
 
-    # ----- Settings handlers -----
+    # Settings action
     def on_change_editor_path(self):
         p = ask_editor_path(parent=self)
         if p:
-            messagebox.showinfo("Editor", f"Editor path set:\n{p}")
+            messagebox.showinfo("Editor Path", f"Editor path set:\n{p}")
 
     # ----- Visible columns -----
     def compute_visible_columns(self, rows):
         fixed_names = [name for _, name in FIXED_FIELDS if not _remove_forbidden(name)]
         must_keep = {"Year"} | set(fixed_names)
+
         cols = [c for c in self.header if c != "XML_Path" and not _remove_forbidden(c)]
+
         nonempty = {c: False for c in cols}
         for r in rows:
             for c in cols:
                 if (r.get(c) or "").strip():
                     nonempty[c] = True
+
         visible = []
         for c in cols:
             if c in must_keep or nonempty[c]:
@@ -547,14 +524,16 @@ class App(tk.Tk):
         avail = max(200, tree_w - vertical_bar_width - padding)
         weights = {c: 1 for c in self.visible_columns}
         for c in ("Engine Version", "Exhaust Emission Control"):
-            if c in weights: weights[c] = 2
+            if c in weights:
+                weights[c] = 2
         total_weight = sum(weights.values()) or 1
         min_widths = {c: 80 for c in self.visible_columns}
         for c in ("Engine Version","EngineECU","EngineSize","GearboxECU","Gearbox Type","Exhaust Emission Control"):
             if c in min_widths:
                 min_widths[c] = 120
         remaining = avail - sum(min_widths.get(c, 0) for c in self.visible_columns)
-        if remaining < 0: remaining = 0
+        if remaining < 0:
+            remaining = 0
         for c in self.visible_columns:
             portion = (weights[c] / total_weight)
             extra = int(remaining * portion)
@@ -596,6 +575,10 @@ class App(tk.Tk):
         self.refresh_table()
 
     def refresh_table(self):
+        # Recompute header each load to ensure removed columns are dropped
+        self.header, self.dynamic_labels = compute_csv_columns()
+        upgrade_csv_if_needed(self.header)
+
         self.all_rows = read_all_records(self.header)
         self.visible_columns = self.compute_visible_columns(self.all_rows)
         self.rebuild_tree_columns()
@@ -613,15 +596,21 @@ class App(tk.Tk):
 
     def apply_filter(self):
         rows = list(self.all_rows)
+
+        # Apply single-choice criteria (AND)
         if self.search_criteria:
             filtered = []
             for r in rows:
                 ok = True
                 for col, val in self.search_criteria.items():
                     if (r.get(col, "") or "") != val:
-                        ok = False; break
-                if ok: filtered.append(r)
+                        ok = False
+                        break
+                if ok:
+                    filtered.append(r)
             rows = filtered
+
+        # Free-text filter (visible columns only)
         q = (self.filter_var.get() or "").strip().lower()
         if q:
             filtered = []
@@ -630,21 +619,21 @@ class App(tk.Tk):
                 if q in row_text:
                     filtered.append(r)
             rows = filtered
+
         self.render_rows(rows)
 
-    def copy_selected(self):
-        sel = self.tree.selection()
-        if not sel:
-            messagebox.showwarning("No selection", "Please select a row to copy its XML.")
+    # ----- Copy helpers -----
+    def _copy_paths_to_downloads(self, xml_paths):
+        if not xml_paths:
+            messagebox.showwarning("No files", "Nothing to copy.")
             return
         downloads = os.path.join(os.path.expanduser("~"), "Downloads")
         os.makedirs(downloads, exist_ok=True)
         copied = 0
-        for iid in sel:
-            row = self.row_by_iid.get(iid, {})
-            xml_path = xml_abs(row.get("XML_Path", ""))
+        failed = 0
+        for xml_path in xml_paths:
             if not xml_path or not os.path.exists(xml_path):
-                messagebox.showwarning("Missing file", f"Stored XML path not found:\n{xml_path}")
+                failed += 1
                 continue
             base = os.path.basename(xml_path)
             dest = os.path.join(downloads, base)
@@ -655,39 +644,136 @@ class App(tk.Tk):
             try:
                 shutil.copy2(xml_path, dest)
                 copied += 1
-            except Exception as e:
-                messagebox.showerror("Copy failed", f"Failed to copy to Downloads:\n{e}")
-        if copied:
-            messagebox.showinfo("Copied", f"Copied {copied} file(s) to Downloads.")
+            except Exception:
+                failed += 1
+        messagebox.showinfo("Copy", f"Copied: {copied}\nFailed: {failed}")
 
+    def copy_selected(self):
+        sel = self.tree.selection()
+        if not sel:
+            messagebox.showwarning("No selection", "Please select a row to copy its XML.")
+            return
+        xml_paths = []
+        for iid in sel:
+            row = self.row_by_iid.get(iid, {})
+            p = row.get("XML_Path", "")
+            if p:
+                xml_paths.append(p)
+        self._copy_paths_to_downloads(xml_paths)
+
+    def copy_filtered(self):
+        # copy ALL currently visible rows (after current filters)
+        xml_paths = []
+        for iid in self.tree.get_children():
+            row = self.row_by_iid.get(iid, {})
+            p = row.get("XML_Path", "")
+            if p:
+                xml_paths.append(p)
+        self._copy_paths_to_downloads(xml_paths)
+
+    # ----- Delete selected -----
+    def _rewrite_csv_excluding(self, xml_paths_to_remove: set):
+        # Ensure header is up-to-date
+        upgrade_csv_if_needed(self.header)
+        try:
+            with open(CSV_PATH, "r", encoding="utf-8", newline="") as f:
+                rdr = csv.DictReader(f)
+                rows = list(rdr)
+        except FileNotFoundError:
+            return
+
+        keep = [r for r in rows if (r.get("XML_Path", "") not in xml_paths_to_remove)]
+
+        tmp = CSV_PATH + ".tmpdel"
+        with open(tmp, "w", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=self.header)
+            w.writeheader()
+            for r in keep:
+                w.writerow({col: r.get(col, "") for col in self.header})
+        shutil.move(tmp, CSV_PATH)
+
+    def delete_selected(self):
+        sel = self.tree.selection()
+        if not sel:
+            messagebox.showwarning("No selection", "Please select at least one row to delete.")
+            return
+
+        xml_paths = []
+        for iid in sel:
+            row = self.row_by_iid.get(iid, {})
+            p = row.get("XML_Path", "")
+            if p:
+                xml_paths.append(p)
+        if not xml_paths:
+            messagebox.showwarning("No files", "Selected rows have no stored XML paths.")
+            return
+
+        ans = messagebox.askyesnocancel(
+            "Delete confirmation",
+            "Delete selected rows from index?\n\nYes = Remove from index AND delete stored XML files.\nNo = Remove from index ONLY.\nCancel = Abort."
+        )
+        if ans is None:
+            return  # Cancel
+        delete_from_disk = bool(ans)
+
+        to_remove = set(xml_paths)
+        # Remove from CSV
+        try:
+            self._rewrite_csv_excluding(to_remove)
+        except Exception as e:
+            messagebox.showerror("Delete failed", f"Failed updating CSV:\n{e}")
+            return
+
+        # Optionally delete files
+        deleted = 0
+        failed = 0
+        if delete_from_disk:
+            for p in to_remove:
+                try:
+                    if p and os.path.exists(p):
+                        os.remove(p)
+                        deleted += 1
+                except Exception:
+                    failed += 1
+
+        self.refresh_table()
+        if delete_from_disk:
+            messagebox.showinfo("Deleted", f"Removed from index: {len(to_remove)}\nDeleted files: {deleted}\nFailed: {failed}")
+        else:
+            messagebox.showinfo("Deleted", f"Removed from index: {len(to_remove)}")
+
+    # ---- Open selected XML directly in the Editor ----
     def open_in_editor(self):
         sel = self.tree.selection()
         if not sel:
             messagebox.showwarning("No selection", "Please select a row first.")
             return
         if len(sel) > 1:
-            messagebox.showinfo(APP_TITLE, "سيتم فتح أوّل صف محدّد فقط.")
+            messagebox.showinfo(APP_TITLE, "Only the first selected row will be opened.")
+
         row = self.row_by_iid.get(sel[0], {})
-        xml_path = xml_abs(row.get("XML_Path", ""))
+        xml_path = row.get("XML_Path", "")
         if not xml_path or not os.path.exists(xml_path):
             messagebox.showerror("Missing file", f"Stored XML not found:\n{xml_path}")
             return
 
         editor_path = get_editor_path(parent=self)
         if not editor_path or not os.path.exists(editor_path):
-            messagebox.showerror("Editor not found", "لم أجد برنامج التعديل.\nاختره من Settings → Change Editor Path…")
+            messagebox.showerror(
+                "Editor not found",
+                "Could not find the editor. Use Settings → Change Editor Path… to set it."
+            )
             return
 
         py = sys.executable or shutil.which("python") or shutil.which("py")
         if not py:
-            messagebox.showerror("Python not found", "تعذر العثور على Python لتشغيل المُحرّر.")
+            messagebox.showerror("Python not found", "Could not locate Python to run the editor.")
             return
 
         try:
-            # The editor must support --open <file> --analyze (see Section 2)
             subprocess.Popen([py, editor_path, "--open", xml_path, "--analyze"], close_fds=True)
         except Exception as e:
-            messagebox.showerror("Launch failed", f"فشل تشغيل المُحرّر:\n{e}")
+            messagebox.showerror("Launch failed", f"Failed to launch editor:\n{e}")
 
 if __name__ == "__main__":
     load_mapping()
