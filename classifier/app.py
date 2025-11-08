@@ -1,3 +1,20 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Scania Spec Index (ttkinter — meanings, dynamic 3113..3148, responsive, search)
+
+CLI options (similar spirit to Full SOPS Editor):
+  --open PATH           Path to an XML to work with
+  --year YEAR           Production year to store for the XML (used with --add)
+  --add                 Non-interactive add: copy XML into store + append to CSV
+  --analyze             After start, refresh the table and attempt to select the row
+  --set-editor PATH     Persist the editor script path to config.json (for "Open in Editor")
+
+Examples (Windows):
+  py -3 Scania_Spec_Index_CLI_ready.py --open C:\data\truck.xml --year 2017 --add --analyze
+  py -3 Scania_Spec_Index_CLI_ready.py --set-editor "C:\\Users\\Kstore\\Documents\\GitHub\\scania_SOPS\\Full_SOPS_Editor_v8_14.py"
+"""
+
 import os
 import csv
 import shutil
@@ -5,6 +22,7 @@ import time
 import sys
 import subprocess
 import json
+import argparse
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, simpledialog
 import xml.etree.ElementTree as ET
@@ -775,7 +793,104 @@ class App(tk.Tk):
         except Exception as e:
             messagebox.showerror("Launch failed", f"Failed to launch editor:\n{e}")
 
-if __name__ == "__main__":
+    # ====== NEW: programmatic helpers to support CLI ======
+    def add_xml_programmatically(self, xml_path: str, year: str) -> str:
+        """Add a single XML without dialogs. Returns stored destination path."""
+        dest = unique_store_path(xml_path)
+        shutil.copy2(xml_path, dest)
+        rec = build_record(xml_path, year or "", dest, self.dynamic_labels)
+        append_record(rec, self.header)
+        self.refresh_table()
+        try:
+            self.select_row_by_xml(dest)
+        except Exception:
+            pass
+        return dest
+
+    def select_row_by_xml(self, path: str) -> bool:
+        """Try to select the row whose XML_Path matches the given path."""
+        want = os.path.normcase(os.path.abspath(path or ""))
+        for iid, row in self.row_by_iid.items():
+            p = os.path.normcase(os.path.abspath(row.get("XML_Path", "") or ""))
+            if p and p == want:
+                self.tree.selection_set(iid)
+                self.tree.see(iid)
+                return True
+        # fallback by basename if absolute paths differ
+        base = os.path.basename(want)
+        for iid, row in self.row_by_iid.items():
+            if os.path.basename(row.get("XML_Path", "") or "") == base:
+                self.tree.selection_set(iid)
+                self.tree.see(iid)
+                return True
+        return False
+
+# ====== CLI glue ======
+
+def parse_args():
+    ap = argparse.ArgumentParser(description=APP_TITLE)
+    ap.add_argument("--open", dest="open_path", help="Path to an XML file to add/select")
+    ap.add_argument("--year", dest="year", help="Production year for the XML (used with --add)")
+    ap.add_argument("--add", action="store_true", help="Copy XML into store and append to CSV")
+    ap.add_argument("--analyze", action="store_true", help="Refresh & select row after startup")
+    ap.add_argument("--set-editor", dest="set_editor", help="Persist editor path to config.json")
+    return ap.parse_args()
+
+
+def main():
+    ensure_dirs()
     load_mapping()
+    args = parse_args()
+
+    # Prepare Tk app
     app = App()
+
+    # Optionally set editor path from CLI
+    if args.set_editor:
+        cfg = load_config()
+        cfg["editor_path"] = args.set_editor
+        try:
+            with open(CONFIG_PATH, "w", encoding="utf-8") as f:
+                json.dump(cfg, f, ensure_ascii=False, indent=2)
+            try:
+                messagebox.showinfo("Editor Path", f"Editor path saved to config:\n{args.set_editor}")
+            except Exception:
+                pass
+        except Exception as e:
+            try:
+                messagebox.showerror("Config", f"Failed to write config.json:\n{e}")
+            except Exception:
+                pass
+
+    # If an XML is provided on CLI
+    if args.open_path:
+        p = os.path.abspath(args.open_path)
+        try:
+            if args.add:
+                year = args.year or ""
+                try:
+                    # If no year provided, ask interactively (keeps behavior similar to UI)
+                    if not year:
+                        year = simpledialog.askstring("Year", f"Enter production year for:\n{os.path.basename(p)}", parent=app) or ""
+                except Exception:
+                    pass
+                dest = app.add_xml_programmatically(p, year)
+                # Explicit analyze step isn't different from refresh in this app, but keep flag parity
+                if args.analyze:
+                    app.refresh_table()
+                    app.select_row_by_xml(dest)
+            else:
+                # Not adding: just try to select existing row by basename
+                app.refresh_table()
+                app.select_row_by_xml(p)
+        except Exception as e:
+            try:
+                messagebox.showerror(APP_TITLE, f"CLI operation failed:\n{e}")
+            except Exception:
+                pass
+
     app.mainloop()
+
+
+if __name__ == "__main__":
+    main()
